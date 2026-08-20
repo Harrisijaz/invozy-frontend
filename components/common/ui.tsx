@@ -100,7 +100,7 @@ export function ErrorState({ title = "Something went wrong", description = "We c
   );
 }
 
-export function ConfirmDialog({ open, title, description, confirmLabel, onConfirm, onCancel, loading }: { open: boolean; title: string; description: string; confirmLabel: string; onConfirm: () => void; onCancel: () => void; loading?: boolean }) {
+export function ConfirmDialog({ open, title, description, confirmLabel, onConfirm, onCancel, loading, children }: { open: boolean; title: string; description: string; confirmLabel: string; onConfirm: () => void; onCancel: () => void; loading?: boolean; children?: ReactNode }) {
   return (
     <AnimatePresence>
       {open ? (
@@ -108,6 +108,7 @@ export function ConfirmDialog({ open, title, description, confirmLabel, onConfir
           <motion.div initial={{ scale: 0.96, y: 8 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.96, y: 8 }} className="w-full max-w-md rounded-xl border border-border bg-card p-5 shadow-xl">
             <h2 className="text-lg font-semibold text-card-foreground">{title}</h2>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
+            {children ? <div className="mt-4">{children}</div> : null}
             <div className="mt-5 flex justify-end gap-2">
               <Button variant="secondary" onClick={onCancel}>Cancel</Button>
               <Button variant="danger" isLoading={loading} onClick={onConfirm}>{confirmLabel}</Button>

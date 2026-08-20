@@ -15,7 +15,7 @@ function readValue<T extends object>(row: T, key: keyof T | string) {
   return (row as Record<string, unknown>)[String(key)];
 }
 
-export function DataTable<T extends object>({ data, columns, searchKeys, loading, error, actions, emptyTitle = "No records found" }: { data: T[]; columns: Column<T>[]; searchKeys: (keyof T)[]; loading?: boolean; error?: boolean; actions?: ReactNode; emptyTitle?: string }) {
+export function DataTable<T extends object>({ data, columns, searchKeys, loading, error, actions, emptyTitle = "No records found", showSearch = true, clientPagination = true }: { data: T[]; columns: Column<T>[]; searchKeys: (keyof T)[]; loading?: boolean; error?: boolean; actions?: ReactNode; emptyTitle?: string; showSearch?: boolean; clientPagination?: boolean }) {
   const [query, setQuery] = useState("");
   const [sortKey, setSortKey] = useState<string>("");
   const [page, setPage] = useState(1);
@@ -27,20 +27,20 @@ export function DataTable<T extends object>({ data, columns, searchKeys, loading
     return [...rows].sort((a, b) => String(readValue(a, sortKey) ?? "").localeCompare(String(readValue(b, sortKey) ?? "")));
   }, [data, query, searchKeys, sortKey]);
   const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
+  const paginated = clientPagination ? filtered.slice((page - 1) * pageSize, page * pageSize) : filtered;
 
   if (loading) return <LoadingState label="Loading table" />;
   if (error) return <ErrorState />;
 
   return (
     <div className="rounded-xl border border-border bg-card shadow-sm">
-      <div className="flex flex-col gap-3 border-b border-border p-3 sm:flex-row sm:items-center sm:justify-between">
-        <label className="relative block w-full sm:max-w-sm">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input className="pl-9" value={query} onChange={(event) => { setQuery(event.target.value); setPage(1); }} placeholder="Search records" aria-label="Search records" />
-        </label>
+      {(showSearch || actions) ? <div className="flex flex-col gap-3 border-b border-border p-3 sm:flex-row sm:items-center sm:justify-between">
+        {showSearch ? <label className="relative block w-full sm:max-w-sm">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input className="pl-9" value={query} onChange={(event) => { setQuery(event.target.value); setPage(1); }} placeholder="Search records" aria-label="Search records" />
+          </label> : <div />}
         {actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}
-      </div>
+      </div> : null}
       {paginated.length === 0 ? (
         <div className="p-4"><EmptyState title={emptyTitle} description="Try changing your filters or search query." /></div>
       ) : (
@@ -69,13 +69,13 @@ export function DataTable<T extends object>({ data, columns, searchKeys, loading
           </table>
         </div>
       )}
-      <div className="flex items-center justify-between border-t border-border p-3 text-sm text-muted-foreground">
+      {clientPagination ? <div className="flex items-center justify-between border-t border-border p-3 text-sm text-muted-foreground">
         <span>Page {page} of {pages}</span>
         <div className="flex gap-2">
           <Button variant="secondary" disabled={page === 1} onClick={() => setPage((current) => Math.max(1, current - 1))}>Previous</Button>
           <Button variant="secondary" disabled={page === pages} onClick={() => setPage((current) => Math.min(pages, current + 1))}>Next</Button>
         </div>
-      </div>
+      </div> : null}
     </div>
   );
 }

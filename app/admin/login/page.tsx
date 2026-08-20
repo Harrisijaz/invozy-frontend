@@ -23,7 +23,7 @@ export default function AdminLoginPage() {
   const router = useRouter();
   const login = useLogin();
   const toast = useToast();
-  const form = useForm<LoginValues>({ resolver: zodResolver(schema), defaultValues: { email: "admin@invozy.com", password: "password123" } });
+  const form = useForm<LoginValues>({ resolver: zodResolver(schema), defaultValues: { email: "", password: "" } });
   const onSubmit = (values: LoginValues) => {
     login.mutate(values, {
       onSuccess: () => {

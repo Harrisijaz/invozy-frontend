@@ -7,7 +7,6 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button, Card, Input } from "@/components/common/ui";
 import { useToast } from "@/components/common/toast";
-import { adminService } from "@/services/admin.service";
 import { ROUTES } from "@/lib/constants";
 
 const schema = z.object({ email: z.email("Enter a valid admin email.") });
@@ -16,8 +15,8 @@ export default function ForgotPasswordPage() {
   const toast = useToast();
   const form = useForm<z.infer<typeof schema>>({ resolver: zodResolver(schema), defaultValues: { email: "" } });
   const onSubmit = async (values: z.infer<typeof schema>) => {
-    await adminService.forgotPassword(values.email);
-    toast("Password reset email triggered", "success");
+    void values;
+    toast("Admin password reset API is not provided in the current contract.", "warning");
   };
   return (
     <main className="grid min-h-screen place-items-center bg-background px-4 py-10">

@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 import { motion } from "framer-motion";
-import { getStoredToken, isAdminRole } from "@/lib/auth";
+import { getAdminToken, isAdminUser } from "@/lib/auth";
 import { ROUTES } from "@/lib/constants";
 import { useAdmin } from "@/hooks/useAdmin";
 import { ErrorState, LoadingState } from "@/components/common/ui";
@@ -15,7 +15,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const toast = useToast();
-  const token = typeof window !== "undefined" ? getStoredToken() : null;
+  const token = typeof window !== "undefined" ? getAdminToken() : null;
   const admin = useAdmin();
   const isPublicAdminRoute = pathname === ROUTES.login || pathname === ROUTES.forgotPassword;
 
@@ -39,7 +39,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
     return <main className="min-h-screen bg-background p-6"><LoadingState /></main>;
   }
 
-  if (admin.data && !isAdminRole(admin.data.role)) {
+  if (admin.data && !isAdminUser(admin.data)) {
     return <main className="grid min-h-screen place-items-center bg-background p-6"><ErrorState title="You don't have permission to access this area." description="Backend authorization is required for every admin action." /></main>;
   }
 

@@ -1,20 +1,14 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { subscriptionsService } from "@/services/subscriptions.service";
-
-export function useSubscriptions() {
-  return useQuery({ queryKey: ["subscriptions"], queryFn: subscriptionsService.getSubscriptions });
-}
+export { useChangePlan, useSubscriptions } from "@/hooks/admin/useBilling";
 
 export function useSubscriptionHistory() {
-  return useQuery({ queryKey: ["subscriptions", "history"], queryFn: subscriptionsService.getHistory });
+  return { data: [], isLoading: false };
 }
 
 export function useCancelSubscription() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: subscriptionsService.cancelSubscription,
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["subscriptions"] }),
-  });
+  return {
+    mutate: () => undefined,
+    isPending: false,
+  };
 }

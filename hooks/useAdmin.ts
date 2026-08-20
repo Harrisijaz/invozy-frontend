@@ -1,28 +1,17 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { adminService } from "@/services/admin.service";
+import { useQuery } from "@tanstack/react-query";
+import { getStoredAdminUser } from "@/lib/auth";
+import { useAdminLogin, useAdminLogout } from "@/hooks/admin/useAdminAuth";
+import { useActivityLogs } from "@/hooks/admin/useActivityLogs";
 
 export function useAdmin() {
-  return useQuery({ queryKey: ["admin", "me"], queryFn: adminService.me });
-}
-
-export function useLogin() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: adminService.login,
-    onSuccess: (session) => queryClient.setQueryData(["admin", "me"], session.admin),
+  return useQuery({
+    queryKey: ["admin", "user"],
+    queryFn: async () => getStoredAdminUser(),
   });
 }
 
-export function useLogout() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: adminService.logout,
-    onSuccess: () => queryClient.clear(),
-  });
-}
-
-export function useActivityLogs() {
-  return useQuery({ queryKey: ["activity-logs"], queryFn: adminService.getActivityLogs });
-}
+export const useLogin = useAdminLogin;
+export const useLogout = useAdminLogout;
+export { useActivityLogs };
