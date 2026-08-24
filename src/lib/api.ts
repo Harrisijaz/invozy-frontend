@@ -1,6 +1,7 @@
 "use client";
 
 import axios, { AxiosError } from "axios";
+import { ADMIN_ACCESS_TOKEN_KEY, clearAdminSession } from "@/lib/auth";
 
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
@@ -12,7 +13,7 @@ export const api = axios.create({
 api.interceptors.request.use((config) => {
   if (typeof window === "undefined") return config;
 
-  const token = localStorage.getItem("adminAccessToken");
+  const token = localStorage.getItem(ADMIN_ACCESS_TOKEN_KEY);
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -22,10 +23,9 @@ api.interceptors.request.use((config) => {
 
 api.interceptors.response.use(
   (response) => response,
-  (error: AxiosError<{ message?: string; error?: string }>) => {
+  (error: AxiosError) => {
     if (typeof window !== "undefined" && error.response?.status === 401) {
-      localStorage.removeItem("adminAccessToken");
-      localStorage.removeItem("adminUser");
+      clearAdminSession();
       window.dispatchEvent(new CustomEvent("invozy-session-expired"));
     }
 
@@ -33,12 +33,35 @@ api.interceptors.response.use(
   },
 );
 
+function readableErrorValue(value: unknown): string | null {
+  if (!value) return null;
+  if (typeof value === "string") return value;
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
+
+  if (Array.isArray(value)) {
+    const messages = value.map(readableErrorValue).filter(Boolean);
+    return messages.length ? messages.join(", ") : null;
+  }
+
+  if (typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    return (
+      readableErrorValue(record.message) ??
+      readableErrorValue(record.error) ??
+      readableErrorValue(record.detail) ??
+      readableErrorValue(record.code)
+    );
+  }
+
+  return null;
+}
+
 export function getApiErrorMessage(error: unknown, fallback = "Unable to complete the request. Please try again.") {
-  if (!axios.isAxiosError<{ message?: string; error?: string }>(error)) return fallback;
+  if (!axios.isAxiosError(error)) return fallback;
 
   if (!error.response) return "Network error. Please check your connection and try again.";
 
-  const message = error.response.data?.message ?? error.response.data?.error;
+  const message = readableErrorValue(error.response.data);
   if (message) return message;
 
   switch (error.response.status) {

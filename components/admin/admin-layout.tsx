@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 import { motion } from "framer-motion";
-import { getAdminToken, isAdminUser } from "@/lib/auth";
+import { clearAdminSession, getAdminToken, isAdminUser } from "@/lib/auth";
 import { ROUTES } from "@/lib/constants";
 import { useAdmin } from "@/hooks/useAdmin";
 import { ErrorState, LoadingState } from "@/components/common/ui";
@@ -21,7 +21,10 @@ export function AdminLayout({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (isPublicAdminRoute) return;
-    if (!token) router.replace(ROUTES.login);
+    if (!token) {
+      clearAdminSession();
+      router.replace(ROUTES.login);
+    }
   }, [isPublicAdminRoute, router, token]);
 
   useEffect(() => {
