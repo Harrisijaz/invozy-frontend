@@ -3,9 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "./providers";
 import "./globals.css";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://admin.invozy.com";
-const title = "Invozy Admin";
-const description = "Secure administration portal for managing Invozy users, billing, analytics, support, moderation, and platform activity.";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://invozy.com";
+const title = "Invozy";
+const description = "Invoice, quotation, expense, and financial management software for modern businesses.";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,10 +19,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  applicationName: "Invozy Admin",
+  applicationName: "Invozy",
   title: {
     default: title,
-    template: "%s | Invozy Admin",
+    template: "%s | Invozy",
   },
   description,
   alternates: {
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     title,
     description,
     url: "/",
-    siteName: "Invozy Admin",
+    siteName: "Invozy",
     images: [
       {
         url: "/brand/invozy-logo-new.png",
