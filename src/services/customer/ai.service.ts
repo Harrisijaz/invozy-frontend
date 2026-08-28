@@ -1,5 +1,5 @@
-import { integrationPending } from "./integration";
+import { invoiceService } from "./invoice.service";
 
 export const aiService = {
-  generateInvoiceDraft: () => integrationPending("aiService.generateInvoiceDraft"),
+  generateInvoiceDraft: invoiceService.generateDraft,
 };

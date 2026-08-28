@@ -1,6 +1,7 @@
 "use client";
 
 import { Menu, UserRound } from "lucide-react";
+import Link from "next/link";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import type { UserProfile } from "@/src/types/customer";
 
@@ -16,13 +17,17 @@ export function TopNavbar({ user, onMenuClick }: { user: UserProfile; onMenuClic
       </div>
       <div className="flex items-center gap-2">
         <ThemeToggle compact />
-        <div className="hidden items-center gap-3 rounded-lg border border-border bg-card px-3 py-2 sm:flex">
-          <div className="grid h-8 w-8 place-items-center rounded-full bg-primary/10 text-sm font-semibold text-primary">{initials || <UserRound className="h-4 w-4" />}</div>
+        <Link href="/app/settings/profile" aria-label="View and edit profile" className="hidden items-center gap-3 rounded-lg border border-border bg-card px-3 py-2 transition hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:flex">
+          {user.avatarUrl ? (
+            <div className="h-8 w-8 rounded-full bg-cover bg-center" style={{ backgroundImage: `url("${user.avatarUrl}")` }} aria-hidden="true" />
+          ) : (
+            <div className="grid h-8 w-8 place-items-center rounded-full bg-primary/10 text-sm font-semibold text-primary">{initials || <UserRound className="h-4 w-4" />}</div>
+          )}
           <div className="min-w-0">
             <p className="truncate text-sm font-medium">{user.name}</p>
             <p className="truncate text-xs text-muted-foreground">{user.email}</p>
           </div>
-        </div>
+        </Link>
       </div>
     </header>
   );

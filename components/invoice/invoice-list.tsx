@@ -8,21 +8,29 @@ import { StatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Select } from "@/components/ui/form";
-import { mockInvoices } from "@/src/mocks/customer/data";
 import { formatCurrency, formatDate } from "@/src/lib/customer/formatters";
 import { canDeleteInvoice, canEditInvoice, invoiceStatusLabels } from "@/src/lib/customer/status";
+import { useDeleteInvoice, useInvoicePaymentLink, useInvoices } from "@/src/hooks/customer/useInvoices";
+import { pdfService } from "@/src/services/customer/pdf.service";
+import type { InvoiceStatus } from "@/src/types/customer";
 
 export function InvoiceList() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("ALL");
+  const invoices = useInvoices({ status: status as InvoiceStatus | "ALL", clientName: search || undefined });
+  const deleteInvoice = useDeleteInvoice();
+  const paymentLink = useInvoicePaymentLink();
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
-    return mockInvoices.filter((invoice) => {
+    return (invoices.data?.items ?? []).filter((invoice) => {
       const matchesQuery = !query || invoice.number.toLowerCase().includes(query) || invoice.client.name.toLowerCase().includes(query);
       const matchesStatus = status === "ALL" || invoice.status === status;
       return matchesQuery && matchesStatus;
     });
-  }, [search, status]);
+  }, [invoices.data?.items, search, status]);
+
+  if (invoices.isLoading) return <Card>Loading invoices...</Card>;
+  if (invoices.isError) return <Card>Unable to load invoices.</Card>;
 
   return (
     <Card className="min-w-0">
@@ -55,14 +63,14 @@ export function InvoiceList() {
                 <td className="px-3 py-4 text-muted-foreground">{formatDate(invoice.issueDate)}</td>
                 <td className="px-3 py-4 text-muted-foreground">{formatDate(invoice.dueDate)}</td>
                 <td className="px-3 py-4 text-right font-medium">{formatCurrency(invoice.amount, invoice.currency)}</td>
-                <td className="px-3 py-4"><StatusBadge value={invoiceStatusLabels[invoice.status]} tone={invoice.status === "PAID" ? "success" : invoice.status === "OVERDUE" ? "error" : "warning"} /></td>
+                <td className="px-3 py-4"><StatusBadge value={invoiceStatusLabels[invoice.status]} tone={invoice.status === "PAID" ? "success" : invoice.status === "DELETED" ? "error" : "warning"} /></td>
                 <td className="py-4 pl-3">
                   <div className="flex justify-end gap-1">
                     <Button asChild href={`/app/invoices/${invoice.id}`} variant="ghost" size="sm">View</Button>
                     {canEditInvoice(invoice.status) ? <Button asChild href={`/app/invoices/${invoice.id}/edit`} variant="ghost" size="icon"><Edit3 className="h-4 w-4" /></Button> : null}
-                    <Button variant="ghost" size="icon" title="Download PDF"><Download className="h-4 w-4" /></Button>
-                    <Button variant="ghost" size="icon" title="Payment link"><Link2 className="h-4 w-4" /></Button>
-                    {canDeleteInvoice(invoice.status) ? <Button variant="ghost" size="icon" title="Delete"><Trash2 className="h-4 w-4 text-error" /></Button> : null}
+                    <Button variant="ghost" size="icon" title="Download PDF" onClick={() => void pdfService.downloadInvoice(invoice.id)}><Download className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon" title="Payment link" onClick={() => paymentLink.mutate(invoice.id)}><Link2 className="h-4 w-4" /></Button>
+                    {canDeleteInvoice(invoice.status) ? <Button variant="ghost" size="icon" title="Delete" onClick={() => deleteInvoice.mutate(invoice.id)}><Trash2 className="h-4 w-4 text-error" /></Button> : null}
                   </div>
                 </td>
               </tr>
@@ -82,7 +90,7 @@ export function InvoiceList() {
             </div>
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
               <span className="text-lg font-semibold">{formatCurrency(invoice.amount, invoice.currency)}</span>
-              <StatusBadge value={invoiceStatusLabels[invoice.status]} tone={invoice.status === "PAID" ? "success" : invoice.status === "OVERDUE" ? "error" : "warning"} />
+              <StatusBadge value={invoiceStatusLabels[invoice.status]} tone={invoice.status === "PAID" ? "success" : invoice.status === "DELETED" ? "error" : "warning"} />
             </div>
             <p className="mt-3 text-sm text-muted-foreground">Due {formatDate(invoice.dueDate)}</p>
           </Link>

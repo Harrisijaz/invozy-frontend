@@ -1,21 +1,27 @@
-import { FileDown } from "lucide-react";
-import { FeatureGate } from "@/components/shared/feature-gate";
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
 import { PageHeader } from "@/components/shared/page-header";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { getEntitlements } from "@/src/lib/customer/entitlements";
-import { mockUsage, mockUser } from "@/src/mocks/customer/data";
+import { financialService } from "@/src/services/customer/financial.service";
+import { formatCurrency, formatDate } from "@/src/lib/customer/formatters";
+import { centsToAmount } from "@/src/lib/customer/normalize";
 
 export default function FinancialReportsPage() {
-  const entitlements = getEntitlements(mockUser.plan, mockUsage);
+  const summary = useQuery({ queryKey: ["customer", "finance-summary"], queryFn: () => financialService.summary() });
   return (
     <div className="grid gap-6">
-      <PageHeader title="Financial Reports" description="Monthly and yearly reports with PDF and CSV exports." />
-      <FeatureGate allowed={entitlements.canExportReports} title="Financial reports are paid only" description="Unlock monthly reports, yearly reports, PDF export, and CSV export with Invozy Paid.">
-        <div className="grid gap-4 md:grid-cols-2">
-          {["Monthly Report", "Yearly Report"].map((title) => <Card key={title}><h2 className="font-semibold">{title}</h2><p className="mt-2 text-sm text-muted-foreground">Generated from backend financial data when report APIs are connected.</p><div className="mt-4 flex flex-wrap gap-2"><Button><FileDown className="h-4 w-4" />Export PDF</Button><Button variant="secondary">Export CSV</Button></div></Card>)}
+      <PageHeader title="Financial Reports" description="Income, expenses, and savings are loaded from GET /finance/summary." />
+      {summary.isLoading ? <Card>Loading finance summary...</Card> : null}
+      {summary.isError ? <Card>Unable to load finance summary from the gateway.</Card> : null}
+      {summary.data ? (
+        <div className="grid gap-4 md:grid-cols-3">
+          <Card><p className="text-sm text-muted-foreground">Income</p><p className="mt-2 text-2xl font-semibold">{formatCurrency(centsToAmount(summary.data.incomeCents))}</p></Card>
+          <Card><p className="text-sm text-muted-foreground">Expenses</p><p className="mt-2 text-2xl font-semibold">{formatCurrency(centsToAmount(summary.data.expensesCents))}</p></Card>
+          <Card><p className="text-sm text-muted-foreground">Savings</p><p className="mt-2 text-2xl font-semibold">{formatCurrency(centsToAmount(summary.data.savingsCents))}</p></Card>
+          <Card className="md:col-span-3"><p className="text-sm text-muted-foreground">Period</p><p className="mt-2 font-medium">{formatDate(summary.data.fromDate)} - {formatDate(summary.data.toDate)}</p></Card>
         </div>
-      </FeatureGate>
+      ) : null}
     </div>
   );
 }

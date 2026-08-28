@@ -66,7 +66,7 @@ export const mockInvoices: Invoice[] = [
     dueDate: "2026-08-03",
     amount: 890,
     currency: "USD",
-    status: "OVERDUE",
+    status: "UNPAID",
     items: [{ id: "li_4", description: "Landing page updates", quantity: 1, unitPrice: 890, taxRate: 0 }],
   },
 ];
@@ -80,7 +80,7 @@ export const mockQuotations: Quotation[] = [
     validUntil: "2026-09-16",
     amount: 6800,
     currency: "USD",
-    status: "ACCEPTED",
+    status: "CONVERTED",
     items: [{ id: "qli_1", description: "Analytics dashboard redesign", quantity: 1, unitPrice: 6800, taxRate: 10 }],
   },
   {
@@ -91,7 +91,7 @@ export const mockQuotations: Quotation[] = [
     validUntil: "2026-09-19",
     amount: 3200,
     currency: "USD",
-    status: "SENT",
+    status: "PENDING",
     items: [{ id: "qli_2", description: "Billing portal UX review", quantity: 1, unitPrice: 3200, taxRate: 0 }],
   },
 ];

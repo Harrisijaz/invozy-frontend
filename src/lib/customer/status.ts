@@ -3,15 +3,13 @@ import type { InvoiceStatus, QuotationStatus } from "@/src/types/customer";
 export const invoiceStatusLabels: Record<InvoiceStatus, string> = {
   DRAFT: "Draft",
   UNPAID: "Unpaid",
+  PAYMENT_PROCESSING: "Payment Processing",
   PAID: "Paid",
-  OVERDUE: "Overdue",
   DELETED: "Deleted",
 };
 
 export const quotationStatusLabels: Record<QuotationStatus, string> = {
-  DRAFT: "Draft",
-  SENT: "Sent",
-  ACCEPTED: "Accepted",
+  PENDING: "Pending",
   EXPIRED: "Expired",
   CONVERTED: "Converted",
 };

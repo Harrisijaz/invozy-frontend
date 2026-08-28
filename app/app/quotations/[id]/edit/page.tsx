@@ -1,11 +1,11 @@
-import { DocumentForm } from "@/components/invoice/document-form";
 import { PageHeader } from "@/components/shared/page-header";
+import { Card } from "@/components/ui/card";
 
 export default function EditQuotationPage() {
   return (
     <div className="grid gap-6">
-      <PageHeader title="Edit Quotation" description="Converted or expired quotations are locked from editing." />
-      <DocumentForm type="quotation" />
+      <PageHeader title="Edit Quotation" description="Quotation editing is not available." />
+      <Card>Use Create Quotation to make a new quotation.</Card>
     </div>
   );
 }

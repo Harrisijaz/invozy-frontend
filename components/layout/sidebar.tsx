@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 import { BarChart3, CreditCard, FileText, LayoutDashboard, LogOut, ReceiptText, Settings, TrendingUp, Wallet } from "lucide-react";
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { Button } from "@/components/ui/button";
 import { PlanBadge } from "@/components/shared/status-badge";
 import { cn } from "@/lib/utils";
+import { authService } from "@/src/services/customer/auth.service";
 import type { PlanCode } from "@/src/types/customer";
 
 const navItems = [
@@ -22,6 +24,11 @@ const navItems = [
 
 export function Sidebar({ plan, onNavigate }: { plan: PlanCode; onNavigate?: () => void }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const logout = async () => {
+    await authService.logout();
+    router.replace("/login");
+  };
   return (
     <aside className="flex h-full w-72 flex-col border-r border-border bg-card">
       <div className="flex h-16 items-center px-5">
@@ -55,7 +62,7 @@ export function Sidebar({ plan, onNavigate }: { plan: PlanCode; onNavigate?: () 
           <p className="mt-2 text-sm text-muted-foreground">{plan === "PAID" ? "$12/month" : "5 invoices lifetime"}</p>
           {plan === "FREE" ? <Button asChild href="/app/subscription" className="mt-3 w-full" size="sm">Upgrade to Paid</Button> : null}
         </div>
-        <button className="mt-3 flex min-h-11 w-full items-center gap-3 rounded-lg px-3 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground" type="button">
+        <button className="mt-3 flex min-h-11 w-full items-center gap-3 rounded-lg px-3 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground" type="button" onClick={logout}>
           <LogOut className="h-4 w-4" />
           Logout
         </button>

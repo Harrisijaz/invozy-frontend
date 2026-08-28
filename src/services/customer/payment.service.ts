@@ -1,5 +1,5 @@
-import { integrationPending } from "./integration";
+import { invoiceService } from "./invoice.service";
 
 export const paymentService = {
-  generatePaymentLink: () => integrationPending("paymentService.generatePaymentLink"),
+  generatePaymentLink: invoiceService.paymentLink,
 };

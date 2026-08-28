@@ -1,43 +1,71 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { PageHeader } from "@/components/shared/page-header";
-import { FeatureGate } from "@/components/shared/feature-gate";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Field, Input, Select } from "@/components/ui/form";
-import { mockExpenses, mockUsage, mockUser } from "@/src/mocks/customer/data";
-import { getEntitlements } from "@/src/lib/customer/entitlements";
+import { useToast } from "@/components/common/toast";
+import { useCreateExpense } from "@/src/hooks/customer/useExpenses";
+import { amountToCents, centsToAmount } from "@/src/lib/customer/normalize";
 import { formatCurrency, formatDate } from "@/src/lib/customer/formatters";
+import { getCustomerApiErrorMessage } from "@/src/lib/customer/api";
+import { financialService } from "@/src/services/customer/financial.service";
 
 export default function ExpensesPage() {
-  const [adding, setAdding] = useState(false);
-  const entitlements = getEntitlements(mockUser.plan, mockUsage);
+  const toast = useToast();
+  const createExpense = useCreateExpense();
+  const summary = useQuery({ queryKey: ["customer", "finance-summary"], queryFn: () => financialService.summary() });
+  const [adding, setAdding] = useState(true);
+  const [form, setForm] = useState({ amount: "", category: "Software", expenseDate: "", note: "" });
+
+  const save = async () => {
+    try {
+      await createExpense.mutateAsync({
+        amountCents: amountToCents(Number(form.amount)),
+        category: form.category,
+        expenseDate: form.expenseDate,
+        note: form.note,
+      });
+      toast("Expense saved.", "success");
+      setAdding(false);
+      setForm({ amount: "", category: "Software", expenseDate: "", note: "" });
+    } catch (error) {
+      toast(getCustomerApiErrorMessage(error), "error");
+    }
+  };
+
   return (
     <div className="grid gap-6">
-      <PageHeader title="Expenses" description="Track business expenses with monthly limits for Free users." actions={<Button onClick={() => setAdding((value) => !value)} disabled={!entitlements.canTrackExpenses}>Add Expense</Button>} />
-      {!entitlements.canTrackExpenses ? <FeatureGate allowed={false} title="Monthly expense limit reached" description="You've reached your monthly expense limit. Upgrade to Paid for unlimited expenses."><span /></FeatureGate> : null}
+      <PageHeader title="Expenses" description="Add expenses and review finance totals." actions={<Button onClick={() => setAdding((value) => !value)}>{adding ? "Hide Form" : "Add Expense"}</Button>} />
       {adding ? (
         <Card className="grid gap-4">
           <h2 className="font-semibold">Add Expense</h2>
           <div className="grid gap-4 md:grid-cols-4">
-            <Field label="Amount"><Input type="number" min="0" step="0.01" /></Field>
-            <Field label="Category"><Select><option>Software</option><option>Travel</option><option>Marketing</option></Select></Field>
-            <Field label="Date"><Input type="date" defaultValue="2026-08-25" /></Field>
-            <Field label="Note"><Input placeholder="Short note" /></Field>
+            <Field label="Amount"><Input type="number" min="0" step="0.01" value={form.amount} onChange={(event) => setForm((current) => ({ ...current, amount: event.target.value }))} /></Field>
+            <Field label="Category"><Select value={form.category} onChange={(event) => setForm((current) => ({ ...current, category: event.target.value }))}><option>Software</option><option>Travel</option><option>Marketing</option><option>Office</option></Select></Field>
+            <Field label="Date"><Input type="date" value={form.expenseDate} onChange={(event) => setForm((current) => ({ ...current, expenseDate: event.target.value }))} /></Field>
+            <Field label="Note"><Input placeholder="Short note" value={form.note} onChange={(event) => setForm((current) => ({ ...current, note: event.target.value }))} /></Field>
           </div>
-          <div className="flex justify-end"><Button>Save Expense</Button></div>
+          <div className="flex justify-end"><Button onClick={save} isLoading={createExpense.isPending}>Save Expense</Button></div>
         </Card>
       ) : null}
-      <Card className="min-w-0">
-        <div className="hidden overflow-x-auto md:block">
-          <table className="w-full min-w-[640px] text-left text-sm">
-            <thead className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground"><tr><th className="py-3 pr-3">Date</th><th className="px-3 py-3">Category</th><th className="px-3 py-3">Note</th><th className="py-3 pl-3 text-right">Amount</th></tr></thead>
-            <tbody>{mockExpenses.map((expense) => <tr key={expense.id} className="border-b border-border last:border-0"><td className="py-4 pr-3">{formatDate(expense.date)}</td><td className="px-3 py-4">{expense.category}</td><td className="px-3 py-4 text-muted-foreground">{expense.note}</td><td className="py-4 pl-3 text-right font-medium">{formatCurrency(expense.amount, expense.currency)}</td></tr>)}</tbody>
-          </table>
-        </div>
-        <div className="grid gap-3 md:hidden">{mockExpenses.map((expense) => <div key={expense.id} className="rounded-lg border border-border p-4"><div className="flex justify-between gap-3"><div><p className="font-medium">{expense.category}</p><p className="text-sm text-muted-foreground">{formatDate(expense.date)}</p></div><span className="font-semibold">{formatCurrency(expense.amount, expense.currency)}</span></div><p className="mt-3 text-sm text-muted-foreground">{expense.note}</p></div>)}</div>
-      </Card>
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <p className="text-sm text-muted-foreground">Income</p>
+          <p className="mt-2 text-2xl font-semibold">{summary.data ? formatCurrency(centsToAmount(summary.data.incomeCents)) : "--"}</p>
+        </Card>
+        <Card>
+          <p className="text-sm text-muted-foreground">Expenses</p>
+          <p className="mt-2 text-2xl font-semibold">{summary.data ? formatCurrency(centsToAmount(summary.data.expensesCents)) : "--"}</p>
+        </Card>
+        <Card>
+          <p className="text-sm text-muted-foreground">Savings</p>
+          <p className="mt-2 text-2xl font-semibold">{summary.data ? formatCurrency(centsToAmount(summary.data.savingsCents)) : "--"}</p>
+        </Card>
+      </div>
+      {summary.data ? <Card><p className="text-sm text-muted-foreground">Summary period</p><p className="mt-2 font-medium">{formatDate(summary.data.fromDate)} - {formatDate(summary.data.toDate)}</p></Card> : null}
     </div>
   );
 }

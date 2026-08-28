@@ -2,8 +2,10 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Bot, Plus, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
+import { useToast } from "@/components/common/toast";
 import { FeatureGate } from "@/components/shared/feature-gate";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
@@ -12,7 +14,12 @@ import { Field, Input, Select, Textarea } from "@/components/ui/form";
 import { calculateDocumentTotals } from "@/src/lib/customer/totals";
 import { formatCurrency } from "@/src/lib/customer/formatters";
 import { getEntitlements } from "@/src/lib/customer/entitlements";
-import { mockBusiness, mockUsage, mockUser } from "@/src/mocks/customer/data";
+import { getCustomerApiErrorMessage } from "@/src/lib/customer/api";
+import { invoiceToRequest, quotationToRequest } from "@/src/lib/customer/normalize";
+import { useCreateInvoice, useUpdateInvoice } from "@/src/hooks/customer/useInvoices";
+import { useSubscription } from "@/src/hooks/customer/useSubscription";
+import { useCreateQuotation } from "@/src/hooks/customer/useQuotations";
+import { useSettings } from "@/src/hooks/customer/useSettings";
 
 const schema = z.object({
   clientName: z.string().min(2, "Client name is required."),
@@ -32,19 +39,33 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
-export function DocumentForm({ type = "invoice" }: { type?: "invoice" | "quotation" }) {
-  const entitlements = getEntitlements(mockUser.plan, mockUsage);
+export function DocumentForm({ type = "invoice", id }: { type?: "invoice" | "quotation"; id?: string }) {
+  const router = useRouter();
+  const toast = useToast();
+  const subscription = useSubscription();
+  const settings = useSettings();
+  const createInvoice = useCreateInvoice();
+  const updateInvoice = useUpdateInvoice();
+  const createQuotation = useCreateQuotation();
+  const plan = subscription.data?.plan ?? "FREE";
+  const usage = subscription.data?.usage ?? { invoicesUsedLifetime: 0, aiUsedLifetime: 0, expensesUsedThisMonth: 0 };
+  const business = {
+    name: settings.data?.businessName ?? "Smart Invoice",
+    currency: settings.data?.baseCurrency ?? "USD",
+    defaultTaxRate: settings.data?.defaultTaxRate ?? 0,
+  };
+  const entitlements = getEntitlements(plan, usage);
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
       clientName: "",
       clientEmail: "",
       documentNumber: type === "invoice" ? "INV-1005" : "QUO-2043",
-      issueDate: "2026-08-25",
-      dueDate: "2026-09-08",
-      currency: mockBusiness.currency,
+      issueDate: "",
+      dueDate: "",
+      currency: business.currency,
       notes: "",
-      items: [{ description: "", quantity: 1, unitPrice: 0, taxRate: mockBusiness.defaultTaxRate }],
+      items: [{ description: "", quantity: 1, unitPrice: 0, taxRate: business.defaultTaxRate }],
     },
   });
   const { fields, append, remove } = useFieldArray({ control: form.control, name: "items" });
@@ -56,15 +77,36 @@ export function DocumentForm({ type = "invoice" }: { type?: "invoice" | "quotati
     unitPrice: item?.unitPrice ?? 0,
     taxRate: item?.taxRate ?? 0,
   }));
-  const currency = formValues.currency ?? mockBusiness.currency;
+  const currency = formValues.currency ?? business.currency;
   const clientName = formValues.clientName ?? "";
   const clientEmail = formValues.clientEmail ?? "";
   const documentNumber = formValues.documentNumber ?? "";
   const totals = calculateDocumentTotals(watchedItems);
+  const submit = form.handleSubmit(async (values) => {
+    try {
+      if (type === "invoice") {
+        const payload = invoiceToRequest(values);
+        const saved = id ? await updateInvoice.mutateAsync({ id, payload }) : await createInvoice.mutateAsync(payload);
+        toast(id ? "Invoice updated." : "Invoice created.", "success");
+        router.push(`/app/invoices/${saved.id}`);
+        return;
+      }
+      if (id) {
+        toast("Quotation updates are not available.", "error");
+        return;
+      }
+      const payload = quotationToRequest(values);
+      const saved = await createQuotation.mutateAsync(payload);
+      toast("Quotation created.", "success");
+      router.push(`/app/quotations/${saved.id}`);
+    } catch (error) {
+      toast(getCustomerApiErrorMessage(error), "error");
+    }
+  });
 
   return (
     <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
-      <form className="grid gap-4" onSubmit={form.handleSubmit(() => undefined)}>
+      <form className="grid gap-4" onSubmit={submit}>
         {type === "invoice" ? (
           <FeatureGate allowed={entitlements.canUseAI} title="AI invoice generation is limited" description="You've reached your free AI generation limit. Upgrade to Paid for unlimited AI drafts.">
             <Card className="border-primary/25 bg-primary/5">
@@ -95,15 +137,23 @@ export function DocumentForm({ type = "invoice" }: { type?: "invoice" | "quotati
           </div>
         </Card>
         <Card className="grid gap-4 overflow-hidden">
-          <div className="flex items-center justify-between gap-3"><h2 className="font-semibold">Line Items</h2><Button type="button" variant="secondary" size="sm" onClick={() => append({ description: "", quantity: 1, unitPrice: 0, taxRate: mockBusiness.defaultTaxRate })}><Plus className="h-4 w-4" />Add item</Button></div>
+          <div className="flex items-center justify-between gap-3"><h2 className="font-semibold">Line Items</h2><Button type="button" variant="secondary" size="sm" onClick={() => append({ description: "", quantity: 1, unitPrice: 0, taxRate: business.defaultTaxRate })}><Plus className="h-4 w-4" />Add item</Button></div>
           <div className="grid gap-3">
             {fields.map((field, index) => (
-              <div key={field.id} className="grid gap-3 rounded-lg border border-border p-3 lg:grid-cols-[1fr_100px_130px_100px_44px]">
-                <Input placeholder="Description" {...form.register(`items.${index}.description`)} />
-                <Input type="number" min="0" step="0.01" placeholder="Qty" {...form.register(`items.${index}.quantity`, { valueAsNumber: true })} />
-                <Input type="number" min="0" step="0.01" placeholder="Unit price" {...form.register(`items.${index}.unitPrice`, { valueAsNumber: true })} />
-                <Input type="number" min="0" max="100" step="0.01" placeholder="Tax %" {...form.register(`items.${index}.taxRate`, { valueAsNumber: true })} />
-                <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} aria-label="Remove item"><Trash2 className="h-4 w-4 text-error" /></Button>
+              <div key={field.id} className="grid gap-3 rounded-lg border border-border p-3 lg:grid-cols-[1fr_100px_130px_100px_44px] lg:items-start">
+                <Field label="Description" error={form.formState.errors.items?.[index]?.description?.message}>
+                  <Input placeholder="Service or product name" {...form.register(`items.${index}.description`)} />
+                </Field>
+                <Field label="Quantity" error={form.formState.errors.items?.[index]?.quantity?.message}>
+                  <Input type="number" min="0" step="0.01" placeholder="Qty" {...form.register(`items.${index}.quantity`, { valueAsNumber: true })} />
+                </Field>
+                <Field label="Unit Price" error={form.formState.errors.items?.[index]?.unitPrice?.message}>
+                  <Input type="number" min="0" step="0.01" placeholder="Rate" {...form.register(`items.${index}.unitPrice`, { valueAsNumber: true })} />
+                </Field>
+                <Field label="Tax Rate" error={form.formState.errors.items?.[index]?.taxRate?.message}>
+                  <Input type="number" min="0" max="100" step="0.01" placeholder="Tax %" {...form.register(`items.${index}.taxRate`, { valueAsNumber: true })} />
+                </Field>
+                <Button type="button" variant="ghost" size="icon" className="lg:mt-7" onClick={() => remove(index)} aria-label="Remove item"><Trash2 className="h-4 w-4 text-error" /></Button>
               </div>
             ))}
           </div>
@@ -113,13 +163,13 @@ export function DocumentForm({ type = "invoice" }: { type?: "invoice" | "quotati
         </Card>
         <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
           <Button type="button" variant="secondary">Save Draft</Button>
-          <Button type="submit">{type === "invoice" ? "Create Invoice" : "Create Quotation"}</Button>
+          <Button type="submit" isLoading={form.formState.isSubmitting}>{id ? "Save Changes" : type === "invoice" ? "Create Invoice" : "Create Quotation"}</Button>
         </div>
       </form>
       <aside className="min-w-0 xl:sticky xl:top-20 xl:self-start">
         <Card className="bg-card">
           <div className="border-b border-border pb-5">
-            <div className="flex items-start justify-between gap-4"><div><p className="text-sm text-muted-foreground">{mockBusiness.name}</p><h2 className="mt-1 text-xl font-semibold">{documentNumber}</h2></div><StatusBadge value="Draft" tone="warning" /></div>
+            <div className="flex items-start justify-between gap-4"><div><p className="text-sm text-muted-foreground">{business.name}</p><h2 className="mt-1 text-xl font-semibold">{documentNumber}</h2></div><StatusBadge value="Draft" tone="warning" /></div>
           </div>
           <div className="mt-5 grid gap-4 text-sm">
             <div><p className="text-muted-foreground">Bill to</p><p className="font-medium">{clientName || "Client name"}</p><p className="text-muted-foreground">{clientEmail || "client@example.com"}</p></div>
