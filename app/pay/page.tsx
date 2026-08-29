@@ -1,19 +1,12 @@
 "use client";
 
+import type { PaddleEventData } from "@paddle/paddle-js";
 import Script from "next/script";
 import { useEffect, useState } from "react";
 import { useSubscription } from "@/src/hooks/customer/useSubscription";
 
-declare global {
-  interface Window {
-    Paddle?: {
-      Environment: { set: (environment: "sandbox" | "production") => void };
-      Initialize: (options: { token: string; eventCallback?: (event: { name?: string }) => void }) => void;
-    };
-  }
-}
-
-const paddleToken = process.env.NEXT_PUBLIC_PADDLE_CLIENT_SIDE_TOKEN ?? "";
+const paddleToken = process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN ?? "";
+const paddleEnvironment = process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT === "production" ? "production" : "sandbox";
 
 export default function PayPage() {
   const [ready, setReady] = useState(false);
@@ -21,10 +14,10 @@ export default function PayPage() {
 
   useEffect(() => {
     if (!ready || !window.Paddle || !paddleToken) return;
-    window.Paddle.Environment.set("sandbox");
+    window.Paddle.Environment.set(paddleEnvironment);
     window.Paddle.Initialize({
       token: paddleToken,
-      eventCallback: (event) => {
+      eventCallback: (event: PaddleEventData) => {
         if (event.name?.includes("checkout")) {
           void subscription.refetch();
         }

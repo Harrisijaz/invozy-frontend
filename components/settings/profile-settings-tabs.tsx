@@ -14,6 +14,7 @@ import { clearUserSession } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { getCustomerApiErrorMessage } from "@/src/lib/customer/api";
 import { formatDate } from "@/src/lib/customer/formatters";
+import { isPaidPlan } from "@/src/lib/customer/plans";
 import { useProfile, useRemoveProfilePicture, useUpdateDisplayName, useUploadProfilePicture } from "@/src/hooks/customer/useProfile";
 import { useChangePassword, useSettings, useUpdateSettings } from "@/src/hooks/customer/useSettings";
 import { useCancelSubscription, useCreateCheckout, useSubscription } from "@/src/hooks/customer/useSubscription";
@@ -240,7 +241,7 @@ function BillingTab() {
   const cancel = useCancelSubscription();
   const usage = subscription.data?.usage;
   const current = subscription.data?.subscription;
-  const paid = current?.planType === "PAID";
+  const paid = isPaidPlan(current?.planType);
 
   if (subscription.isLoading) return <Card>Loading billing...</Card>;
   if (subscription.isError || !current || !usage) return <Card>Unable to load billing details.</Card>;

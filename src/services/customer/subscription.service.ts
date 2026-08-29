@@ -7,7 +7,7 @@ export const subscriptionService = {
     return response.data;
   },
   async upgrade() {
-    const response = await customerApi.post<{ url: string }>("/subscription/checkout");
+    const response = await customerApi.post<{ url: string; transactionId?: string }>("/subscription/checkout");
     return response.data;
   },
   async cancel() {

@@ -8,6 +8,7 @@ import { BrandLogo } from "@/components/brand/brand-logo";
 import { Button } from "@/components/ui/button";
 import { PlanBadge } from "@/components/shared/status-badge";
 import { cn } from "@/lib/utils";
+import { isPaidPlan } from "@/src/lib/customer/plans";
 import { authService } from "@/src/services/customer/auth.service";
 import type { PlanCode } from "@/src/types/customer";
 
@@ -59,7 +60,7 @@ export function Sidebar({ plan, onNavigate }: { plan: PlanCode; onNavigate?: () 
             <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Current Plan</span>
             <PlanBadge plan={plan} />
           </div>
-          <p className="mt-2 text-sm text-muted-foreground">{plan === "PAID" ? "$12/month" : "5 invoices lifetime"}</p>
+          <p className="mt-2 text-sm text-muted-foreground">{isPaidPlan(plan) ? "$12/month" : "5 invoices lifetime"}</p>
           {plan === "FREE" ? <Button asChild href="/app/subscription" className="mt-3 w-full" size="sm">Upgrade to Paid</Button> : null}
         </div>
         <button className="mt-3 flex min-h-11 w-full items-center gap-3 rounded-lg px-3 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground" type="button" onClick={logout}>

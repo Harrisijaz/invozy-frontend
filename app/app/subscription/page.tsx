@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useCancelSubscription, useCreateCheckout, useSubscription } from "@/src/hooks/customer/useSubscription";
 import { formatDate } from "@/src/lib/customer/formatters";
+import { isPaidPlan } from "@/src/lib/customer/plans";
 
 export default function SubscriptionPage() {
   const subscription = useSubscription();
@@ -17,7 +18,7 @@ export default function SubscriptionPage() {
   if (subscription.isLoading) return <Card>Loading subscription...</Card>;
   if (subscription.isError || !subscription.data) return <Card>Unable to load subscription from the gateway.</Card>;
   const current = subscription.data.subscription;
-  const isPaid = current.planType === "PAID";
+  const isPaid = isPaidPlan(current.planType);
   const statusText = [
     `Status: ${current.status}`,
     current.renewalDate ? `Renewal: ${formatDate(current.renewalDate)}` : null,
@@ -113,7 +114,7 @@ export default function SubscriptionPage() {
                   </div>
                   <div className="mt-auto border-t border-border bg-muted/25 p-5 sm:p-6">
                     {plan.name === "Pro" && !isPaid ? (
-                      <Button onClick={() => checkout.mutate()} isLoading={checkout.isPending} className="w-full"><Zap className="h-4 w-4" />Upgrade to Pro</Button>
+                      <Button onClick={() => checkout.mutate()} isLoading={checkout.isPending} className="w-full"><Zap className="h-4 w-4" />Upgrade to Paid</Button>
                     ) : null}
                     {plan.name === "Pro" && isPaid ? (
                       <Button variant="danger" onClick={() => cancel.mutate()} isLoading={cancel.isPending} className="w-full">Cancel Subscription</Button>

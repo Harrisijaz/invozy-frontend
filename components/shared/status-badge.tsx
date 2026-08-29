@@ -1,4 +1,6 @@
 import { cn } from "@/lib/utils";
+import { isPaidPlan } from "@/src/lib/customer/plans";
+import type { PlanCode } from "@/src/types/customer";
 
 const tones = {
   success: "border-success/25 bg-success/10 text-success",
@@ -12,6 +14,6 @@ export function StatusBadge({ value, tone = "neutral" }: { value: string; tone?:
   return <span className={cn("inline-flex whitespace-nowrap rounded-md border px-2 py-1 text-xs font-medium", tones[tone])}>{value}</span>;
 }
 
-export function PlanBadge({ plan }: { plan: "FREE" | "PAID" }) {
-  return <StatusBadge value={plan} tone={plan === "PAID" ? "primary" : "neutral"} />;
+export function PlanBadge({ plan }: { plan: PlanCode }) {
+  return <StatusBadge value={plan} tone={isPaidPlan(plan) ? "primary" : "neutral"} />;
 }

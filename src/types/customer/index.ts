@@ -1,4 +1,4 @@
-export type PlanCode = "FREE" | "PAID";
+export type PlanCode = "FREE" | "PAID" | "PRO" | "PREMIUM";
 export type InvoiceStatus = "DRAFT" | "UNPAID" | "PAYMENT_PROCESSING" | "PAID" | "DELETED";
 export type QuotationStatus = "PENDING" | "CONVERTED" | "EXPIRED";
 export type SubscriptionStatus = "ACTIVE" | "CANCELLED" | "PAYMENT_FAILED" | "GRACE_PERIOD";

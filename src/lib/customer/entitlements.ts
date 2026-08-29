@@ -1,4 +1,5 @@
 import type { PlanCode, Usage } from "@/src/types/customer";
+import { isPaidPlan } from "@/src/lib/customer/plans";
 
 export const planRules = {
   FREE: {
@@ -26,7 +27,7 @@ export const planRules = {
 } as const;
 
 export function getEntitlements(plan: PlanCode, usage: Usage) {
-  const rules = planRules[plan];
+  const rules = isPaidPlan(plan) ? planRules.PAID : planRules.FREE;
   return {
     canCreateInvoice: rules.invoiceLimit === null || usage.invoicesUsedLifetime < rules.invoiceLimit,
     canUseAI: rules.aiLimit === null || usage.aiUsedLifetime < rules.aiLimit,

@@ -5,7 +5,7 @@ import type { InternalAxiosRequestConfig } from "axios";
 import { clearUserSession, getUserRefreshToken, getUserToken, storeUserSession } from "@/lib/auth";
 import type { ApiErrorBody, RefreshResponse } from "@/src/types/customer";
 
-export const CUSTOMER_API_BASE_URL = "http://localhost:9094";
+export const CUSTOMER_API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export const customerApi = axios.create({
   baseURL: CUSTOMER_API_BASE_URL,
@@ -81,7 +81,7 @@ function readableErrorValue(value: unknown): string | null {
 
 export function getCustomerApiErrorMessage(error: unknown, fallback = "Unable to complete the request. Please try again.") {
   if (!axios.isAxiosError(error)) return fallback;
-  if (!error.response) return "Network error. Please check the gateway at http://localhost:9094 and try again.";
+  if (!error.response) return "Network error. Please check the gateway and try again.";
   const message = readableErrorValue(error.response.data);
   if (message) return message;
   if (error.response.status === 401) return "Your session has expired. Please log in again.";
