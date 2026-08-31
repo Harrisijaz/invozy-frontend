@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { Sidebar } from "@/components/layout/sidebar";
+import { MobileBottomNav, Sidebar } from "@/components/layout/sidebar";
 import { TopNavbar } from "@/components/layout/top-navbar";
 import { getStoredUserInfo, getUserToken } from "@/lib/auth";
 import { userInfoToProfile } from "@/src/lib/customer/normalize";
@@ -49,7 +49,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </AnimatePresence>
       <div className="min-w-0 lg:pl-72">
         <TopNavbar user={user} onMenuClick={() => setOpen(true)} />
-        <main className="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">{children}</main>
+        <AnimatePresence mode="wait">
+          <motion.main
+            key={pathname}
+            className="mx-auto w-full max-w-[1600px] px-4 pb-24 pt-5 sm:px-6 sm:pt-6 lg:px-8 lg:pb-8"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+          >
+            {children}
+          </motion.main>
+        </AnimatePresence>
+        <MobileBottomNav />
       </div>
     </div>
   );

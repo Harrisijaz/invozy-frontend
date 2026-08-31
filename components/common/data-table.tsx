@@ -33,13 +33,13 @@ export function DataTable<T extends object>({ data, columns, searchKeys, loading
   if (error) return <ErrorState />;
 
   return (
-    <div className="rounded-xl border border-border bg-card shadow-sm">
+    <div className="rounded-lg border border-border bg-card shadow-sm">
       {(showSearch || actions) ? <div className="flex flex-col gap-3 border-b border-border p-3 sm:flex-row sm:items-center sm:justify-between">
         {showSearch ? <label className="relative block w-full sm:max-w-sm">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input className="pl-9" value={query} onChange={(event) => { setQuery(event.target.value); setPage(1); }} placeholder="Search records" aria-label="Search records" />
           </label> : <div />}
-        {actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}
+        {actions ? <div className="grid gap-2 sm:flex sm:flex-wrap">{actions}</div> : null}
       </div> : null}
       {paginated.length === 0 ? (
         <div className="p-4"><EmptyState title={emptyTitle} description="Try changing your filters or search query." /></div>
@@ -61,7 +61,7 @@ export function DataTable<T extends object>({ data, columns, searchKeys, loading
             </thead>
             <tbody>
               {paginated.map((row, index) => (
-                <tr key={String(readValue(row, "id") ?? index)} className="border-t border-border transition hover:bg-muted/50">
+                <tr key={String(readValue(row, "id") ?? index)} className="border-t border-border transition duration-200 hover:bg-muted/50">
                   {columns.map((column) => <td key={String(column.key)} className="px-4 py-3 align-middle text-foreground">{column.render ? column.render(row) : String(readValue(row, column.key) ?? "")}</td>)}
                 </tr>
               ))}

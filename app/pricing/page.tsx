@@ -26,7 +26,7 @@ export default function PricingPage() {
         <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">Start free, then upgrade to remove limits and unlock payments, income dashboards, and reports.</p>
         <div className="mt-8 grid gap-4 lg:grid-cols-2">
           <Card><h2 className="text-xl font-semibold">Free</h2><p className="mt-2 text-sm text-muted-foreground">For trying core billing workflows.</p><p className="mt-6 text-3xl font-semibold">$0</p><Button asChild href="/signup" className="mt-6 w-full" variant="secondary">Start Free</Button></Card>
-          <Card className="border-primary/40"><h2 className="text-xl font-semibold">Paid</h2><p className="mt-2 text-sm text-muted-foreground">For running billing and financial workflows without limits.</p><p className="mt-6 text-3xl font-semibold">$12<span className="text-base font-normal text-muted-foreground">/month</span></p><Button asChild href="/signup" className="mt-6 w-full">Upgrade to Paid</Button></Card>
+          <Card className="border-primary/40"><h2 className="text-xl font-semibold">Paid</h2><p className="mt-2 text-sm text-muted-foreground">For running billing and financial workflows without limits.</p><p className="mt-6 text-3xl font-semibold">$15<span className="text-base font-normal text-muted-foreground">/month</span></p><Button asChild href="/signup" className="mt-6 w-full">Upgrade to Paid</Button></Card>
         </div>
         <Card className="mt-8 overflow-hidden p-0">
           <div className="overflow-x-auto">

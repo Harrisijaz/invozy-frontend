@@ -57,7 +57,7 @@ export function InvoiceList() {
           </thead>
           <tbody>
             {filtered.map((invoice) => (
-              <tr key={invoice.id} className="border-b border-border last:border-0">
+              <tr key={invoice.id} className="border-b border-border transition duration-200 last:border-0 hover:bg-muted/45">
                 <td className="py-4 pr-3 font-medium"><Link href={`/app/invoices/${invoice.id}`} className="hover:text-primary">{invoice.number}</Link></td>
                 <td className="px-3 py-4">{invoice.client.name}</td>
                 <td className="px-3 py-4 text-muted-foreground">{formatDate(invoice.issueDate)}</td>
@@ -80,7 +80,7 @@ export function InvoiceList() {
       </div>
       <div className="mt-5 grid gap-3 md:hidden">
         {filtered.map((invoice) => (
-          <Link key={invoice.id} href={`/app/invoices/${invoice.id}`} className="rounded-lg border border-border p-4 transition hover:bg-muted">
+          <Link key={invoice.id} href={`/app/invoices/${invoice.id}`} className="rounded-lg border border-border p-4 transition duration-200 hover:-translate-y-1 hover:border-primary/35 hover:bg-muted/60 hover:shadow-sm">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="font-medium">{invoice.number}</p>

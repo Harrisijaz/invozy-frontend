@@ -40,7 +40,7 @@ export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, Props>(f
   ref,
 ) {
   const classes = cn(
-    "inline-flex shrink-0 items-center justify-center gap-2 rounded-lg font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-60",
+    "inline-flex shrink-0 items-center justify-center gap-2 rounded-lg font-medium transition duration-200 hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:translate-y-0 disabled:opacity-60",
     variants[variant],
     sizes[size],
     className,
