@@ -116,34 +116,48 @@ function ProfileTab() {
   if (profile.isError || !profile.data) return <Card>Unable to load profile.</Card>;
 
   return (
-    <div className="grid gap-4 xl:grid-cols-[360px_1fr]">
-      <Card className="self-start">
-        <div className="flex flex-col items-center text-center">
-          {profile.data.profilePictureUrl ? (
-            <div className="h-28 w-28 rounded-full bg-cover bg-center ring-4 ring-primary/10" style={{ backgroundImage: `url("${profile.data.profilePictureUrl}")` }} aria-label="Profile picture" />
-          ) : (
-            <div className="grid h-28 w-28 place-items-center rounded-full bg-primary/10 text-3xl font-semibold text-primary ring-4 ring-primary/10">{initials}</div>
-          )}
-          <h2 className="mt-4 text-lg font-semibold">{profile.data.displayName}</h2>
-          <p className="mt-1 text-sm text-muted-foreground">{profile.data.email}</p>
-          <p className="mt-3 text-xs text-muted-foreground">Created {formatDate(profile.data.createdAt)}</p>
+    <div className="mx-auto grid w-full max-w-3xl gap-4">
+      <Card className="overflow-hidden p-0">
+        <div className="border-b border-border bg-muted/35 px-5 py-4">
+          <h2 className="text-base font-semibold text-card-foreground">Account Profile</h2>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">Keep your public account identity current for invoices, receipts, and workspace access.</p>
         </div>
-        <div className="mt-5 grid gap-2">
-          <label className="inline-flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition hover:bg-primary/90">
-            <Camera className="h-4 w-4" />
-            {profile.data.profilePictureUrl ? "Change Picture" : "Upload Picture"}
-            <input className="sr-only" type="file" accept="image/png,image/jpeg,image/jpg,image/webp" onChange={(event) => void upload(event.target.files?.[0])} />
-          </label>
-          <Button type="button" variant="secondary" onClick={remove} isLoading={removePicture.isPending} disabled={!profile.data.profilePictureUrl}><Trash2 className="h-4 w-4" />Remove Picture</Button>
+        <div className="grid gap-5 p-5 sm:grid-cols-[auto_1fr] sm:items-center">
+          <div className="flex justify-center sm:justify-start">
+            {profile.data.profilePictureUrl ? (
+              <div className="h-24 w-24 rounded-full bg-cover bg-center ring-4 ring-primary/10 sm:h-28 sm:w-28" style={{ backgroundImage: `url("${profile.data.profilePictureUrl}")` }} aria-label="Profile picture" />
+            ) : (
+              <div className="grid h-24 w-24 place-items-center rounded-full bg-primary/10 text-3xl font-semibold text-primary ring-4 ring-primary/10 sm:h-28 sm:w-28">{initials}</div>
+            )}
+          </div>
+          <div className="min-w-0 text-center sm:text-left">
+            <h3 className="truncate text-xl font-semibold text-foreground">{profile.data.displayName}</h3>
+            <p className="mt-1 truncate text-sm text-muted-foreground">{profile.data.email}</p>
+            <p className="mt-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Created {formatDate(profile.data.createdAt)}</p>
+            <div className="mt-5 grid gap-2 sm:flex sm:flex-wrap">
+              <label className="inline-flex min-h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 sm:w-auto">
+                <Camera className="h-4 w-4" />
+                {profile.data.profilePictureUrl ? "Change Picture" : "Upload Picture"}
+                <input className="sr-only" type="file" accept="image/png,image/jpeg,image/jpg,image/webp" onChange={(event) => void upload(event.target.files?.[0])} />
+              </label>
+              <Button type="button" variant="secondary" className="w-full sm:w-auto" onClick={remove} isLoading={removePicture.isPending} disabled={!profile.data.profilePictureUrl}><Trash2 className="h-4 w-4" />Remove Picture</Button>
+            </div>
+          </div>
         </div>
       </Card>
-      <Card className="grid gap-4">
-        <h2 className="font-semibold">Profile Details</h2>
-        <div className="grid gap-4 md:grid-cols-2">
+
+      <Card className="grid gap-5">
+        <div>
+          <h2 className="text-base font-semibold text-card-foreground">Profile Details</h2>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">Your email is used for login and cannot be changed here.</p>
+        </div>
+        <div className="grid gap-4">
           <Field label="Display Name" error={nameError}><Input value={currentName} onChange={(event) => { setTouched(true); setDisplayName(event.target.value); }} /></Field>
           <Field label="Email"><Input type="email" value={profile.data.email} readOnly className="text-muted-foreground" /></Field>
         </div>
-        <div className="flex justify-end"><Button onClick={save} isLoading={updateName.isPending} disabled={Boolean(nameError)}><Save className="h-4 w-4" />Save Profile</Button></div>
+        <div className="flex justify-end border-t border-border pt-5">
+          <Button className="w-full sm:w-auto" onClick={save} isLoading={updateName.isPending} disabled={Boolean(nameError)}><Save className="h-4 w-4" />Save Profile</Button>
+        </div>
       </Card>
     </div>
   );
