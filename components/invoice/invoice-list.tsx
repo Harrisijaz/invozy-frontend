@@ -1,25 +1,30 @@
 "use client";
 
 import Link from "next/link";
-import { Download, Edit3, Link2, MoreHorizontal, Trash2 } from "lucide-react";
+import { Copy, Download, Edit3, Link2, MoreHorizontal, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useToast } from "@/components/common/toast";
 import { SearchInput } from "@/components/shared/search-input";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Select } from "@/components/ui/form";
+import { getPaymentLinkErrorMessage } from "@/src/lib/customer/api";
 import { formatCurrency, formatDate } from "@/src/lib/customer/formatters";
+import { normalizeLocalPaymentLinkUrl } from "@/src/lib/customer/payment-links";
 import { canDeleteInvoice, canEditInvoice, invoiceStatusLabels } from "@/src/lib/customer/status";
 import { useDeleteInvoice, useInvoicePaymentLink, useInvoices } from "@/src/hooks/customer/useInvoices";
 import { pdfService } from "@/src/services/customer/pdf.service";
-import type { InvoiceStatus } from "@/src/types/customer";
+import type { Invoice, InvoiceStatus } from "@/src/types/customer";
 
 export function InvoiceList() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("ALL");
+  const [generatedPaymentLinks, setGeneratedPaymentLinks] = useState<Record<string, string>>({});
   const invoices = useInvoices({ status: status as InvoiceStatus | "ALL", clientName: search || undefined });
   const deleteInvoice = useDeleteInvoice();
   const paymentLink = useInvoicePaymentLink();
+  const toast = useToast();
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
     return (invoices.data?.items ?? []).filter((invoice) => {
@@ -31,6 +36,23 @@ export function InvoiceList() {
 
   if (invoices.isLoading) return <Card>Loading invoices...</Card>;
   if (invoices.isError) return <Card>Unable to load invoices.</Card>;
+
+  const copyPaymentLink = async (url: string) => {
+    await navigator.clipboard.writeText(normalizeLocalPaymentLinkUrl(url));
+    toast("Payment link copied.", "success");
+  };
+
+  const sendPaymentLink = (invoice: Invoice) => {
+    paymentLink.mutate(invoice.id, {
+      onSuccess: ({ url }) => {
+        setGeneratedPaymentLinks((current) => ({ ...current, [invoice.id]: url }));
+        void copyPaymentLink(url).catch(() => toast("Payment link generated. Use Copy Link to copy it.", "warning"));
+      },
+      onError: (error) => toast(getPaymentLinkErrorMessage(error), "error"),
+    });
+  };
+
+  const isGeneratingPaymentLink = (invoiceId: string) => paymentLink.isPending && paymentLink.variables === invoiceId;
 
   return (
     <Card className="min-w-0">
@@ -59,7 +81,7 @@ export function InvoiceList() {
             {filtered.map((invoice) => (
               <tr key={invoice.id} className="border-b border-border transition duration-200 last:border-0 hover:bg-muted/45">
                 <td className="py-4 pr-3 font-medium"><Link href={`/app/invoices/${invoice.id}`} className="hover:text-primary">{invoice.number}</Link></td>
-                <td className="px-3 py-4">{invoice.client.name}</td>
+                <td className="px-3 py-4"><p>{invoice.client.name}</p>{invoice.client.phone ? <p className="text-xs text-muted-foreground">{invoice.client.phone}</p> : null}</td>
                 <td className="px-3 py-4 text-muted-foreground">{formatDate(invoice.issueDate)}</td>
                 <td className="px-3 py-4 text-muted-foreground">{formatDate(invoice.dueDate)}</td>
                 <td className="px-3 py-4 text-right font-medium">{formatCurrency(invoice.amount, invoice.currency)}</td>
@@ -69,7 +91,13 @@ export function InvoiceList() {
                     <Button asChild href={`/app/invoices/${invoice.id}`} variant="ghost" size="sm">View</Button>
                     {canEditInvoice(invoice.status) ? <Button asChild href={`/app/invoices/${invoice.id}/edit`} variant="ghost" size="icon"><Edit3 className="h-4 w-4" /></Button> : null}
                     <Button variant="ghost" size="icon" title="Download PDF" onClick={() => void pdfService.downloadInvoice(invoice.id)}><Download className="h-4 w-4" /></Button>
-                    <Button variant="ghost" size="icon" title="Payment link" onClick={() => paymentLink.mutate(invoice.id)}><Link2 className="h-4 w-4" /></Button>
+                    {(() => {
+                      const invoicePaymentLink = generatedPaymentLinks[invoice.id] ?? invoice.activePaymentLink ?? null;
+                      const usableInvoicePaymentLink = invoicePaymentLink ? normalizeLocalPaymentLinkUrl(invoicePaymentLink) : null;
+                      if (invoice.status === "UNPAID" && !invoicePaymentLink) return <Button variant="ghost" size="sm" title="Generate Payment Link" isLoading={isGeneratingPaymentLink(invoice.id)} onClick={() => sendPaymentLink(invoice)}><Link2 className="h-4 w-4" />Pay Link</Button>;
+                      if (invoice.status !== "PAID" && usableInvoicePaymentLink) return <Button variant="ghost" size="sm" title="Copy Payment Link" onClick={() => void copyPaymentLink(usableInvoicePaymentLink).catch(() => toast("Unable to copy payment link.", "error"))}><Copy className="h-4 w-4" />Copy Link</Button>;
+                      return null;
+                    })()}
                     {canDeleteInvoice(invoice.status) ? <Button variant="ghost" size="icon" title="Delete" onClick={() => deleteInvoice.mutate(invoice.id)}><Trash2 className="h-4 w-4 text-error" /></Button> : null}
                   </div>
                 </td>
@@ -80,20 +108,33 @@ export function InvoiceList() {
       </div>
       <div className="mt-5 grid gap-3 md:hidden">
         {filtered.map((invoice) => (
-          <Link key={invoice.id} href={`/app/invoices/${invoice.id}`} className="rounded-lg border border-border p-4 transition duration-200 hover:-translate-y-1 hover:border-primary/35 hover:bg-muted/60 hover:shadow-sm">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="font-medium">{invoice.number}</p>
-                <p className="mt-1 truncate text-sm text-muted-foreground">{invoice.client.name}</p>
+          <div key={invoice.id} className="rounded-lg border border-border p-4 transition duration-200 hover:border-primary/35 hover:bg-muted/60 hover:shadow-sm">
+            {(() => {
+              const invoicePaymentLink = generatedPaymentLinks[invoice.id] ?? invoice.activePaymentLink ?? null;
+              const usableInvoicePaymentLink = invoicePaymentLink ? normalizeLocalPaymentLinkUrl(invoicePaymentLink) : null;
+              return (
+                <>
+            <Link href={`/app/invoices/${invoice.id}`} className="block">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-medium">{invoice.number}</p>
+                  <p className="mt-1 truncate text-sm text-muted-foreground">{invoice.client.name}</p>
+                  {invoice.client.phone ? <p className="mt-1 truncate text-xs text-muted-foreground">{invoice.client.phone}</p> : null}
+                </div>
+                <MoreHorizontal className="h-5 w-5 text-muted-foreground" />
               </div>
-              <MoreHorizontal className="h-5 w-5 text-muted-foreground" />
-            </div>
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-              <span className="text-lg font-semibold">{formatCurrency(invoice.amount, invoice.currency)}</span>
-              <StatusBadge value={invoiceStatusLabels[invoice.status]} tone={invoice.status === "PAID" ? "success" : invoice.status === "DELETED" ? "error" : "warning"} />
-            </div>
-            <p className="mt-3 text-sm text-muted-foreground">Due {formatDate(invoice.dueDate)}</p>
-          </Link>
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                <span className="text-lg font-semibold">{formatCurrency(invoice.amount, invoice.currency)}</span>
+                <StatusBadge value={invoiceStatusLabels[invoice.status]} tone={invoice.status === "PAID" ? "success" : invoice.status === "DELETED" ? "error" : "warning"} />
+              </div>
+              <p className="mt-3 text-sm text-muted-foreground">Due {formatDate(invoice.dueDate)}</p>
+            </Link>
+            {invoice.status === "UNPAID" && !invoicePaymentLink ? <Button className="mt-4 w-full" variant="secondary" isLoading={isGeneratingPaymentLink(invoice.id)} onClick={() => sendPaymentLink(invoice)}><Link2 className="h-4 w-4" />Generate Payment Link</Button> : null}
+            {invoice.status !== "PAID" && usableInvoicePaymentLink ? <Button className="mt-4 w-full" variant="secondary" onClick={() => void copyPaymentLink(usableInvoicePaymentLink).catch(() => toast("Unable to copy payment link.", "error"))}><Copy className="h-4 w-4" />Copy Payment Link</Button> : null}
+                </>
+              );
+            })()}
+          </div>
         ))}
       </div>
     </Card>

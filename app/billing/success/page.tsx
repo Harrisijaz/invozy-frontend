@@ -15,24 +15,56 @@ import { isActivePaidSubscription } from "@/src/lib/customer/plans";
 
 export default function BillingSuccessPage() {
   return (
-    <Suspense fallback={<SubscriptionLoading />}>
+    <Suspense fallback={<PaymentSuccessLoading />}>
       <BillingSuccessContent />
     </Suspense>
   );
 }
 
-function SubscriptionLoading() {
+function PaymentSuccessLoading() {
   return (
     <main className="grid min-h-screen place-items-center bg-background px-4 text-sm text-muted-foreground">
       <Card className="flex items-center gap-3">
         <Loader2 className="h-4 w-4 animate-spin text-primary" />
-        <span>Refreshing subscription...</span>
+        <span>Refreshing payment status...</span>
       </Card>
     </main>
   );
 }
 
 function BillingSuccessContent() {
+  const searchParams = useSearchParams();
+  const kind = searchParams.get("type");
+
+  if (kind !== "subscription") {
+    return <InvoicePaymentSuccess />;
+  }
+
+  return <SubscriptionPaymentSuccess />;
+}
+
+function InvoicePaymentSuccess() {
+  const searchParams = useSearchParams();
+  const transactionId = searchParams.get("_ptxn");
+
+  return (
+    <main className="grid min-h-screen place-items-center bg-background px-4 py-10 sm:px-6">
+      <Card className="w-full max-w-lg text-center">
+        <div className="mx-auto grid h-14 w-14 place-items-center rounded-lg bg-success/10 text-success">
+          <CheckCircle2 className="h-7 w-7" />
+        </div>
+        <h1 className="mt-5 text-2xl font-semibold">Invoice Payment Successful</h1>
+        <p className="mt-3 text-sm leading-6 text-muted-foreground">
+          Thank you. Your payment has been received and the invoice owner will see the invoice marked paid after the payment confirmation is processed.
+        </p>
+        {transactionId ? <p className="mt-4 text-xs text-muted-foreground">Transaction: <span className="font-medium text-foreground">{transactionId}</span></p> : null}
+        <p className="mt-5 rounded-lg bg-muted p-3 text-sm text-muted-foreground">You can close this tab.</p>
+      </Card>
+    </main>
+  );
+}
+
+function SubscriptionPaymentSuccess() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const subscription = useSubscription();
@@ -44,7 +76,7 @@ function BillingSuccessContent() {
 
   useEffect(() => {
     if (!getUserToken()) {
-      router.replace(`/login?next=${encodeURIComponent("/billing/success")}`);
+      router.replace(`/login?next=${encodeURIComponent("/billing/success?type=subscription")}`);
     }
   }, [router]);
 

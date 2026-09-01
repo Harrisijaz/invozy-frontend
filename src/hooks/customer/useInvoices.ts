@@ -10,6 +10,8 @@ export function useInvoices(filters: InvoiceFilters = {}) {
       const page = await invoiceService.list(filters);
       return { ...page, items: page.items.map(normalizeInvoice) };
     },
+    refetchInterval: (query) => query.state.data?.items.some((invoice) => invoice.status === "PAYMENT_PROCESSING") ? 30_000 : false,
+    refetchIntervalInBackground: false,
   });
 }
 
@@ -18,6 +20,8 @@ export function useInvoice(id: string, enabled = true) {
     queryKey: ["customer", "invoices", id],
     queryFn: async () => normalizeInvoice(await invoiceService.detail(id)),
     enabled: Boolean(id) && enabled,
+    refetchInterval: (query) => query.state.data?.status === "PAYMENT_PROCESSING" ? 8_000 : false,
+    refetchIntervalInBackground: false,
   });
 }
 
@@ -79,10 +83,13 @@ export function useDeleteInvoice() {
 }
 
 export function useInvoicePaymentLink() {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: invoiceService.paymentLink,
-    onSuccess: ({ url }) => {
-      window.open(url, "_blank", "noopener,noreferrer");
+    onSuccess: async (_, invoiceId) => {
+      await queryClient.invalidateQueries({ queryKey: ["customer", "invoices"] });
+      await queryClient.invalidateQueries({ queryKey: ["customer", "invoices", invoiceId] });
+      await queryClient.invalidateQueries({ queryKey: ["customer", "dashboard"] });
     },
   });
 }

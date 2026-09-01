@@ -31,6 +31,7 @@ function BillingCheckoutContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const transactionId = searchParams.get("_ptxn") ?? "";
+  const checkoutKind = searchParams.get("type") === "subscription" ? "subscription" : "invoice";
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const error = transactionId ? checkoutError : "Checkout transaction is missing.";
 
@@ -41,7 +42,7 @@ function BillingCheckoutContent() {
 
     async function openCheckout() {
       try {
-        await openPaddleCheckout(transactionId);
+        await openPaddleCheckout(transactionId, checkoutKind);
       } catch (checkoutError) {
         if (active) {
           setCheckoutError(checkoutError instanceof Error ? checkoutError.message : "Unable to open Paddle checkout.");
@@ -54,7 +55,7 @@ function BillingCheckoutContent() {
     return () => {
       active = false;
     };
-  }, [transactionId]);
+  }, [checkoutKind, transactionId]);
 
   if (error) {
     return (
@@ -63,7 +64,7 @@ function BillingCheckoutContent() {
           <PageHeader title="Checkout Unavailable" description={error} />
           <Card className="flex flex-col gap-2 sm:flex-row sm:justify-end">
             <Button type="button" variant="secondary" onClick={() => router.refresh()}>Retry</Button>
-            <Button asChild href="/app/subscription">View Subscription</Button>
+            {checkoutKind === "subscription" ? <Button asChild href="/app/subscription">View Subscription</Button> : null}
           </Card>
         </div>
       </main>

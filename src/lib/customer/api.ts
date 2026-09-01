@@ -93,3 +93,18 @@ export function getCustomerApiErrorCode(error: unknown) {
   if (!axios.isAxiosError<ApiErrorBody>(error)) return null;
   return error.response?.data?.code ?? null;
 }
+
+const paymentLinkErrorMessages: Record<string, string> = {
+  INVOICE_NOT_FOUND: "Invoice not found.",
+  PAYMENT_LINK_STATUS_INVALID: "Payment link can only be generated for unpaid invoices.",
+  PAYMENT_LINK_AMOUNT_INVALID: "Invoice amount must be greater than zero.",
+  PADDLE_NOT_CONFIGURED: "Payment provider is not configured.",
+  PADDLE_API_FAILED: "Payment provider error. Please try again.",
+  PADDLE_CHECKOUT_FAILED: "Payment provider error. Please try again.",
+};
+
+export function getPaymentLinkErrorMessage(error: unknown) {
+  const code = getCustomerApiErrorCode(error);
+  if (code && paymentLinkErrorMessages[code]) return paymentLinkErrorMessages[code];
+  return getCustomerApiErrorMessage(error, "Unable to create the payment link. Please try again.");
+}

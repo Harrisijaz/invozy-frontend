@@ -8,8 +8,15 @@ function paddleEnvironment(): Environments {
   return process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT === "production" ? "production" : "sandbox";
 }
 
-function paddleSuccessUrl() {
-  return "http://localhost:3000/billing/success";
+function appOrigin() {
+  if (typeof window !== "undefined") return window.location.origin;
+  return process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+}
+
+type CheckoutKind = "invoice" | "subscription";
+
+function paddleSuccessUrl(kind: CheckoutKind) {
+  return `${appOrigin()}/billing/success?type=${kind}`;
 }
 
 export async function getPaddle() {
@@ -25,7 +32,7 @@ export async function getPaddle() {
       settings: {
         displayMode: "overlay",
         theme: "light",
-        successUrl: paddleSuccessUrl(),
+        successUrl: paddleSuccessUrl("subscription"),
       },
     },
   });
@@ -37,7 +44,7 @@ export async function getPaddle() {
   return paddleInstance;
 }
 
-export async function openPaddleCheckout(transactionId: string) {
+export async function openPaddleCheckout(transactionId: string, kind: CheckoutKind = "subscription") {
   if (!transactionId) {
     throw new Error("Backend did not return Paddle transactionId");
   }
@@ -48,7 +55,7 @@ export async function openPaddleCheckout(transactionId: string) {
     settings: {
       displayMode: "overlay",
       theme: "light",
-      successUrl: paddleSuccessUrl(),
+      successUrl: paddleSuccessUrl(kind),
     },
   });
 }

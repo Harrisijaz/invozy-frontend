@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Bot, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { useToast } from "@/components/common/toast";
@@ -15,8 +16,9 @@ import { calculateDocumentTotals } from "@/src/lib/customer/totals";
 import { formatCurrency } from "@/src/lib/customer/formatters";
 import { getEntitlements } from "@/src/lib/customer/entitlements";
 import { getCustomerApiErrorMessage } from "@/src/lib/customer/api";
+import { countryCallingCodes, formatContactNo, parseContactNo } from "@/src/lib/customer/country-calling-codes";
 import { invoiceToRequest, quotationToRequest } from "@/src/lib/customer/normalize";
-import { useCreateInvoice, useUpdateInvoice } from "@/src/hooks/customer/useInvoices";
+import { useCreateInvoice, useInvoice, useUpdateInvoice } from "@/src/hooks/customer/useInvoices";
 import { useSubscription } from "@/src/hooks/customer/useSubscription";
 import { useCreateQuotation } from "@/src/hooks/customer/useQuotations";
 import { useSettings } from "@/src/hooks/customer/useSettings";
@@ -24,6 +26,8 @@ import { useSettings } from "@/src/hooks/customer/useSettings";
 const schema = z.object({
   clientName: z.string().min(2, "Client name is required."),
   clientEmail: z.email("Enter a valid email."),
+  contactCountryCode: z.string().optional(),
+  contactPhoneNumber: z.string().optional(),
   documentNumber: z.string().min(2, "Document number is required."),
   issueDate: z.string().min(1, "Issue date is required."),
   dueDate: z.string().min(1, "Due date is required."),
@@ -44,6 +48,7 @@ export function DocumentForm({ type = "invoice", id }: { type?: "invoice" | "quo
   const toast = useToast();
   const subscription = useSubscription();
   const settings = useSettings();
+  const existingInvoice = useInvoice(id ?? "", type === "invoice" && Boolean(id));
   const createInvoice = useCreateInvoice();
   const updateInvoice = useUpdateInvoice();
   const createQuotation = useCreateQuotation();
@@ -60,6 +65,8 @@ export function DocumentForm({ type = "invoice", id }: { type?: "invoice" | "quo
     defaultValues: {
       clientName: "",
       clientEmail: "",
+      contactCountryCode: "+92",
+      contactPhoneNumber: "",
       documentNumber: type === "invoice" ? "INV-1005" : "QUO-2043",
       issueDate: "",
       dueDate: "",
@@ -69,6 +76,27 @@ export function DocumentForm({ type = "invoice", id }: { type?: "invoice" | "quo
     },
   });
   const { fields, append, remove } = useFieldArray({ control: form.control, name: "items" });
+  useEffect(() => {
+    if (!existingInvoice.data) return;
+    const contact = parseContactNo(existingInvoice.data.client.phone);
+    form.reset({
+      clientName: existingInvoice.data.client.name,
+      clientEmail: existingInvoice.data.client.email,
+      contactCountryCode: contact.countryCode,
+      contactPhoneNumber: contact.phoneNumber,
+      documentNumber: existingInvoice.data.number,
+      issueDate: existingInvoice.data.issueDate,
+      dueDate: existingInvoice.data.dueDate,
+      currency: existingInvoice.data.currency,
+      notes: existingInvoice.data.notes ?? "",
+      items: existingInvoice.data.items.map((item) => ({
+        description: item.description,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        taxRate: item.taxRate,
+      })),
+    });
+  }, [existingInvoice.data, form]);
   const formValues = useWatch({ control: form.control });
   const watchedItems = (formValues.items ?? []).map((item, index) => ({
     id: fields[index]?.id ?? String(index),
@@ -80,12 +108,20 @@ export function DocumentForm({ type = "invoice", id }: { type?: "invoice" | "quo
   const currency = formValues.currency ?? business.currency;
   const clientName = formValues.clientName ?? "";
   const clientEmail = formValues.clientEmail ?? "";
+  const contactCountryCode = formValues.contactCountryCode ?? "+92";
+  const contactPhoneNumber = formValues.contactPhoneNumber ?? "";
+  const contactNo = formatContactNo(contactCountryCode, contactPhoneNumber);
   const documentNumber = formValues.documentNumber ?? "";
   const totals = calculateDocumentTotals(watchedItems);
   const submit = form.handleSubmit(async (values) => {
     try {
       if (type === "invoice") {
-        const payload = invoiceToRequest(values);
+        const formattedContactNo = formatContactNo(values.contactCountryCode ?? "+92", values.contactPhoneNumber ?? "");
+        if (!formattedContactNo) {
+          form.setError("contactPhoneNumber", { message: "Contact number is required." });
+          return;
+        }
+        const payload = invoiceToRequest({ ...values, contactNo: formattedContactNo });
         const saved = id ? await updateInvoice.mutateAsync({ id, payload }) : await createInvoice.mutateAsync(payload);
         toast(id ? "Invoice updated." : "Invoice created.", "success");
         router.push(`/app/invoices/${saved.id}`);
@@ -125,6 +161,20 @@ export function DocumentForm({ type = "invoice", id }: { type?: "invoice" | "quo
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Client Name" error={form.formState.errors.clientName?.message}><Input {...form.register("clientName")} /></Field>
             <Field label="Client Email" error={form.formState.errors.clientEmail?.message}><Input type="email" {...form.register("clientEmail")} /></Field>
+            {type === "invoice" ? (
+              <div className="grid gap-4 md:col-span-2 md:grid-cols-[220px_minmax(0,1fr)]">
+                <Field label="Country Code" error={form.formState.errors.contactCountryCode?.message}>
+                  <Select {...form.register("contactCountryCode")}>
+                    {countryCallingCodes.map((item) => (
+                      <option key={`${item.country}-${item.code}`} value={item.code}>{item.country} ({item.code})</option>
+                    ))}
+                  </Select>
+                </Field>
+                <Field label="Contact No" error={form.formState.errors.contactPhoneNumber?.message}>
+                  <Input type="tel" inputMode="tel" placeholder="3001234567" {...form.register("contactPhoneNumber")} />
+                </Field>
+              </div>
+            ) : null}
           </div>
         </Card>
         <Card className="grid gap-4">
@@ -172,7 +222,7 @@ export function DocumentForm({ type = "invoice", id }: { type?: "invoice" | "quo
             <div className="flex items-start justify-between gap-4"><div><p className="text-sm text-muted-foreground">{business.name}</p><h2 className="mt-1 text-xl font-semibold">{documentNumber}</h2></div><StatusBadge value="Draft" tone="warning" /></div>
           </div>
           <div className="mt-5 grid gap-4 text-sm">
-            <div><p className="text-muted-foreground">Bill to</p><p className="font-medium">{clientName || "Client name"}</p><p className="text-muted-foreground">{clientEmail || "client@example.com"}</p></div>
+            <div><p className="text-muted-foreground">Bill to</p><p className="font-medium">{clientName || "Client name"}</p><p className="text-muted-foreground">{clientEmail || "client@example.com"}</p>{type === "invoice" ? <p className="text-muted-foreground">{contactNo || "+923001234567"}</p> : null}</div>
             <div className="overflow-hidden rounded-lg border border-border">
               {watchedItems.map((item, index) => <div key={`${item.id}-${index}`} className="grid grid-cols-[1fr_auto] gap-3 border-b border-border p-3 last:border-b-0"><span className="truncate">{item.description || "Line item"}</span><span>{formatCurrency(item.quantity * item.unitPrice, currency)}</span></div>)}
             </div>

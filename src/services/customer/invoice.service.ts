@@ -1,5 +1,5 @@
 import { customerApi } from "@/src/lib/customer/api";
-import type { AiInvoiceDraft, InvoiceFilters, InvoiceRequest, InvoiceResponse, PageResponse } from "@/src/types/customer";
+import type { AiInvoiceDraft, InvoiceFilters, InvoiceRequest, InvoiceResponse, PageResponse, PaymentLinkResponse } from "@/src/types/customer";
 
 export const invoiceService = {
   async list(filters: InvoiceFilters = {}) {
@@ -37,7 +37,7 @@ export const invoiceService = {
     return response.data;
   },
   async paymentLink(id: string) {
-    const response = await customerApi.post<{ url: string }>(`/invoices/${id}/payment-link`);
+    const response = await customerApi.post<PaymentLinkResponse>(`/invoices/${id}/payment-link`);
     return response.data;
   },
   async generateDraft(prompt: string) {

@@ -64,7 +64,7 @@ export type Invoice = {
   status: InvoiceStatus;
   items: LineItem[];
   notes?: string;
-  activePaymentLink?: string;
+  activePaymentLink?: string | null;
   createdVia?: "MANUAL" | "AI";
 };
 
@@ -165,6 +165,7 @@ export type InvoiceLineItemRequest = {
 export type InvoiceRequest = {
   clientName: string;
   clientEmail: string;
+  contactNo: string;
   invoiceDate: string;
   dueDate: string;
   lineItems: InvoiceLineItemRequest[];
@@ -182,7 +183,12 @@ export type InvoiceResponse = Omit<InvoiceRequest, "lineItems"> & {
   totalCents: number;
   status: InvoiceStatus;
   createdVia: "MANUAL" | "AI";
-  activePaymentLink?: string;
+  activePaymentLink?: string | null;
+};
+
+export type PaymentLinkResponse = {
+  url: string;
+  transactionId?: string | null;
 };
 
 export type PageResponse<T> = {
@@ -205,6 +211,7 @@ export type InvoiceFilters = {
 export type AiInvoiceDraft = {
   clientName?: string;
   clientEmail?: string;
+  contactNo?: string;
   lineItems?: InvoiceLineItemRequest[];
   taxRate?: number;
   currency?: string;

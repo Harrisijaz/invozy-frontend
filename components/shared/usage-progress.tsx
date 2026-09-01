@@ -26,6 +26,10 @@ export function UsageCard({ usage, paid = false }: { usage: { invoicesUsedLifeti
       <UsageProgress label="Invoices" used={usage.invoicesUsedLifetime} limit={paid ? null : 5} scope="lifetime" />
       <UsageProgress label="AI" used={usage.aiUsedLifetime} limit={paid ? null : 2} scope="lifetime" />
       <UsageProgress label="Expenses" used={usage.expensesUsedThisMonth} limit={paid ? null : 10} scope="this month" />
+      <div className="flex items-center justify-between gap-3 rounded-lg border border-border p-3 text-sm">
+        <span className="font-medium">Finance Graphs</span>
+        <span className={cn("font-medium", paid ? "text-success" : "text-muted-foreground")}>{paid ? "Included" : "Upgrade required"}</span>
+      </div>
     </Card>
   );
 }

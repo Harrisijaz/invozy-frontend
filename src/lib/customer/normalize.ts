@@ -38,7 +38,7 @@ export function normalizeInvoice(invoice: InvoiceResponse): Invoice {
   return {
     id: String(invoice.id),
     number: invoice.invoiceNumber,
-    client: { name: invoice.clientName, email: invoice.clientEmail },
+    client: { name: invoice.clientName, email: invoice.clientEmail, phone: invoice.contactNo },
     issueDate: invoice.invoiceDate,
     dueDate: invoice.dueDate,
     amount: centsToAmount(invoice.totalCents),
@@ -80,6 +80,7 @@ export function normalizeExpense(expense: ExpenseResponse, currency = "USD"): Ex
 export function invoiceToRequest(values: {
   clientName: string;
   clientEmail: string;
+  contactNo?: string;
   issueDate: string;
   dueDate: string;
   currency: string;
@@ -90,6 +91,7 @@ export function invoiceToRequest(values: {
   return {
     clientName: values.clientName,
     clientEmail: values.clientEmail,
+    contactNo: values.contactNo?.trim() ?? "",
     invoiceDate: values.issueDate,
     dueDate: values.dueDate,
     lineItems: values.items.map((item) => ({

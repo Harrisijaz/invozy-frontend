@@ -97,3 +97,19 @@ textarea {
     transition-duration: 0.01ms !important;
   }
 }
+
+@keyframes graph-rise {
+  from {
+    opacity: 0.35;
+    transform: scaleY(0.18);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+.animate-graph-rise {
+  animation: graph-rise 720ms ease-out both;
+  transform-origin: bottom;
+}

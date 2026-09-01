@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useCancelSubscription, useCreateCheckout, useSubscription } from "@/src/hooks/customer/useSubscription";
 import { formatDate } from "@/src/lib/customer/formatters";
-import { isPaidPlan } from "@/src/lib/customer/plans";
+import { isActivePaidSubscription } from "@/src/lib/customer/plans";
 
 export default function SubscriptionPage() {
   const subscription = useSubscription();
@@ -18,7 +18,7 @@ export default function SubscriptionPage() {
   if (subscription.isLoading) return <Card>Loading subscription...</Card>;
   if (subscription.isError || !subscription.data) return <Card>Unable to load subscription from the gateway.</Card>;
   const current = subscription.data.subscription;
-  const isPaid = isPaidPlan(current.planType);
+  const isPaid = isActivePaidSubscription(current);
   const statusText = [
     `Status: ${current.status}`,
     current.renewalDate ? `Renewal: ${formatDate(current.renewalDate)}` : null,
@@ -55,7 +55,8 @@ export default function SubscriptionPage() {
         "Payment links",
         "Unlimited expenses",
         "Income dashboard",
-        "Financial reports",
+        "Professional income graphs",
+        "Financial reports with charts",
       ],
     },
   ] as const;

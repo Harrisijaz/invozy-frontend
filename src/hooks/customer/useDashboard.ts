@@ -6,8 +6,10 @@ import { financialService } from "@/src/services/customer/financial.service";
 import { normalizeInvoice, subscriptionToUsage, userInfoToProfile } from "@/src/lib/customer/normalize";
 
 export function useDashboard() {
+  const userId = getStoredUserInfo()?.userId ?? "anonymous";
+
   return useQuery({
-    queryKey: ["customer", "dashboard"],
+    queryKey: ["customer", "dashboard", userId],
     queryFn: async () => {
       const [subscription, invoicesPage, summary] = await Promise.all([
         subscriptionService.current(),
@@ -27,5 +29,9 @@ export function useDashboard() {
         invoiceStatusSeries: [],
       };
     },
+    refetchOnMount: "always",
+    refetchOnWindowFocus: "always",
+    refetchInterval: (query) => query.state.data?.invoices.some((invoice) => invoice.status === "PAYMENT_PROCESSING") ? 10_000 : false,
+    refetchIntervalInBackground: false,
   });
 }

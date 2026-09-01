@@ -8,8 +8,10 @@ import {
   ChevronRight,
   FileText,
   HelpCircle,
+  LineChart,
   Mail,
   MessageSquareText,
+  PieChart,
   ReceiptText,
   ShieldCheck,
   Sparkles,
@@ -17,6 +19,7 @@ import {
   WalletCards,
 } from "lucide-react";
 import { MarketingShell } from "@/components/marketing/marketing-shell";
+import { ContactForm } from "@/components/marketing/contact-form";
 import { Button } from "@/components/ui/button";
 
 const stats = [
@@ -52,6 +55,21 @@ const contactMethods = [
   { icon: Mail, title: "Email support", body: "Send product questions, billing issues, or onboarding requests.", value: "support@invozy.com" },
   { icon: MessageSquareText, title: "Customer help", body: "Get guidance for invoices, quotes, expenses, and workspace setup.", value: "Reply within 24 hours" },
   { icon: TimerReset, title: "Response window", body: "Priority issues are reviewed first during business hours.", value: "Mon-Fri support" },
+] as const;
+
+const reportHighlights = [
+  { label: "Paid invoice income", value: "$18.4k", change: "+22%", tone: "text-success" },
+  { label: "Business expenses", value: "$4.2k", change: "-8%", tone: "text-accent" },
+  { label: "Net savings", value: "$14.2k", change: "+31%", tone: "text-primary" },
+] as const;
+
+const graphBars = [
+  ["Jan", 55, 23],
+  ["Feb", 73, 32],
+  ["Mar", 64, 27],
+  ["Apr", 91, 36],
+  ["May", 82, 32],
+  ["Jun", 100, 40],
 ] as const;
 
 export default function Home() {
@@ -142,6 +160,96 @@ export default function Home() {
               <p className="mt-1 text-sm text-muted-foreground">{body}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      <section id="reports-preview" className="border-y border-border bg-card">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-14 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:px-8">
+          <div>
+            <p className="text-sm font-semibold uppercase text-primary">Paid plan reporting</p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-foreground">Turn paid invoices into clear income graphs.</h2>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
+              Once a subscription is active, Invozy unlocks professional income and financial report charts powered by backend finance data. Owners can see paid invoice income, expenses, savings, and payment movement without building spreadsheets.
+            </p>
+            <div className="mt-6 grid gap-3 sm:grid-cols-3">
+              {reportHighlights.map((item) => (
+                <div key={item.label} className="rounded-lg border border-border bg-background p-4">
+                  <p className="text-xs font-medium uppercase text-muted-foreground">{item.label}</p>
+                  <p className="mt-2 text-2xl font-semibold text-foreground">{item.value}</p>
+                  <p className={`mt-1 text-sm font-medium ${item.tone}`}>{item.change}</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <Button asChild href="/signup" className="group w-full sm:w-auto">
+                Start Free <ArrowRight className="h-4 w-4 transition duration-200 group-hover:translate-x-0.5" />
+              </Button>
+              <Button asChild href="/pricing" variant="secondary" className="w-full sm:w-auto">
+                View Pro Features
+              </Button>
+            </div>
+          </div>
+
+          <div className="overflow-hidden rounded-lg border border-border bg-background shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-card px-4 py-3">
+              <div>
+                <p className="text-sm font-semibold text-foreground">Income Overview</p>
+                <p className="text-xs text-muted-foreground">Paid invoices, expenses, and savings</p>
+              </div>
+              <span className="rounded-md bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">Pro reports</span>
+            </div>
+            <div className="grid gap-5 p-4 sm:p-5">
+              <div className="grid gap-3 sm:grid-cols-[1fr_180px]">
+                <div className="rounded-lg border border-border bg-card p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                      <LineChart className="h-4 w-4 text-primary" />
+                      Monthly performance
+                    </div>
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                      <span className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-success" />Income</span>
+                      <span className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-accent" />Expenses</span>
+                    </div>
+                  </div>
+                  <div className="mt-5 flex h-56 items-end gap-3 border-b border-border px-2 pb-3">
+                    {graphBars.map(([month, incomeHeight, expenseHeight], index) => (
+                      <div key={month} className="flex min-w-0 flex-1 flex-col items-center gap-2">
+                        <div className="flex h-44 items-end gap-1.5">
+                          <span className="animate-graph-rise w-4 rounded-t-md bg-success" style={{ height: `${incomeHeight}%`, animationDelay: `${index * 90}ms` }} />
+                          <span className="animate-graph-rise w-4 rounded-t-md bg-accent" style={{ height: `${expenseHeight}%`, animationDelay: `${index * 90 + 80}ms` }} />
+                        </div>
+                        <span className="text-xs text-muted-foreground">{month}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="rounded-lg border border-border bg-card p-4">
+                  <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                    <PieChart className="h-4 w-4 text-primary" />
+                    Breakdown
+                  </div>
+                  <div className="mx-auto mt-6 grid h-32 w-32 place-items-center rounded-full border-[18px] border-success bg-background">
+                    <div className="grid h-20 w-20 place-items-center rounded-full border-[14px] border-primary text-center">
+                      <span className="text-xs font-semibold text-foreground">77% retained</span>
+                    </div>
+                  </div>
+                  <div className="mt-6 grid gap-2 text-sm">
+                    <div className="flex justify-between"><span className="text-muted-foreground">Income</span><span className="font-medium">$18.4k</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">Expenses</span><span className="font-medium">$4.2k</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">Savings</span><span className="font-medium">$14.2k</span></div>
+                  </div>
+                </div>
+              </div>
+              <div className="grid gap-3 rounded-lg border border-border bg-muted/35 p-4 sm:grid-cols-3">
+                {["Active subscription required", "Webhook-paid invoices included", "Dashboard income updates"].map((item) => (
+                  <div key={item} className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                    <Check className="h-4 w-4 text-success" />
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -241,38 +349,7 @@ export default function Home() {
               <h3 className="text-xl font-semibold text-foreground">Send a message</h3>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">Tell us what you need and the team will follow up with the right next step.</p>
             </div>
-            <form className="mt-5 grid gap-4">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <label className="grid gap-2 text-sm font-medium text-foreground">
-                  Full name
-                  <input className="min-h-11 rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15" placeholder="Your name" />
-                </label>
-                <label className="grid gap-2 text-sm font-medium text-foreground">
-                  Email address
-                  <input type="email" className="min-h-11 rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15" placeholder="you@company.com" />
-                </label>
-              </div>
-              <label className="grid gap-2 text-sm font-medium text-foreground">
-                Topic
-                <select className="min-h-11 rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15" defaultValue="">
-                  <option value="" disabled>Select a topic</option>
-                  <option>Account setup</option>
-                  <option>Billing and subscription</option>
-                  <option>Invoices and quotations</option>
-                  <option>Technical support</option>
-                </select>
-              </label>
-              <label className="grid gap-2 text-sm font-medium text-foreground">
-                Message
-                <textarea className="min-h-32 resize-y rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15" placeholder="Write your message..." />
-              </label>
-              <div className="grid gap-3 border-t border-border pt-5 sm:flex sm:items-center sm:justify-between">
-                <p className="text-sm text-muted-foreground">For active customers, include your account email.</p>
-                <Button type="button" className="group w-full sm:w-auto">
-                  Submit Message <ArrowRight className="h-4 w-4 transition duration-200 group-hover:translate-x-0.5" />
-                </Button>
-              </div>
-            </form>
+            <ContactForm />
           </div>
         </div>
       </section>
