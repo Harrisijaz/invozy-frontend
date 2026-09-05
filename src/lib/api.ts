@@ -26,7 +26,7 @@ api.interceptors.response.use(
   (error: AxiosError) => {
     if (typeof window !== "undefined" && error.response?.status === 401) {
       clearAdminSession();
-      window.dispatchEvent(new CustomEvent("invozy-session-expired"));
+      window.dispatchEvent(new CustomEvent("invorights-session-expired"));
     }
 
     return Promise.reject(error);

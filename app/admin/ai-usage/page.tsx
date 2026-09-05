@@ -3,7 +3,7 @@ import { AIUsagePage } from "@/components/admin/pages";
 
 export const metadata: Metadata = {
   title: "AI Usage",
-  description: "Monitor Invozy AI usage, costs, limits, and product consumption patterns.",
+  description: "Monitor InvoRights AI usage, costs, limits, and product consumption patterns.",
 };
 
 export default function Page() {

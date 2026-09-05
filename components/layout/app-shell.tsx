@@ -24,8 +24,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const handleExpired = () => router.replace(`/login?next=${encodeURIComponent(pathname)}`);
-    window.addEventListener("invozy-user-session-expired", handleExpired);
-    return () => window.removeEventListener("invozy-user-session-expired", handleExpired);
+    window.addEventListener("invorights-user-session-expired", handleExpired);
+    return () => window.removeEventListener("invorights-user-session-expired", handleExpired);
   }, [pathname, router]);
 
   if (!getUserToken()) {

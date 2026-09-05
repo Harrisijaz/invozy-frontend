@@ -3,7 +3,7 @@ import { ModerationPage } from "@/components/admin/pages";
 
 export const metadata: Metadata = {
   title: "Moderation",
-  description: "Review and moderate Invozy platform content, reports, and policy actions.",
+  description: "Review and moderate InvoRights platform content, reports, and policy actions.",
 };
 
 export default function Page() {

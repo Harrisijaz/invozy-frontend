@@ -4,7 +4,7 @@ import { MarketingShell } from "@/components/marketing/marketing-shell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
-export const metadata: Metadata = { title: "Pricing", description: "Compare Invozy Free and Paid plans." };
+export const metadata: Metadata = { title: "Pricing", description: "Compare InvoRights Free and Paid plans." };
 
 const rows = [
   ["Invoices", "5 lifetime", "Unlimited"],

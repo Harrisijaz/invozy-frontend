@@ -3,7 +3,7 @@ import { SecurityPage } from "@/components/admin/pages";
 
 export const metadata: Metadata = {
   title: "Security",
-  description: "Manage Invozy security settings, authorization posture, and admin safeguards.",
+  description: "Manage InvoRights security settings, authorization posture, and admin safeguards.",
 };
 
 export default function Page() {

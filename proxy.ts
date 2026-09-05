@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-const ADMIN_AUTH_COOKIE = "invozy_admin_token";
-const USER_AUTH_COOKIE = "invozy_user_token";
+const ADMIN_AUTH_COOKIE = "invorights_admin_token";
+const USER_AUTH_COOKIE = "invorights_user_token";
 const PUBLIC_ADMIN_PATHS = new Set(["/admin/login", "/admin/forgot-password"]);
 const AUTH_PATHS = new Set(["/login", "/signup", "/forgot-password", "/reset-password"]);
 

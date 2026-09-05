@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
   title: "Admin Login",
-  description: "Sign in to the secure Invozy administration portal.",
+  description: "Sign in to the secure InvoRights administration portal.",
 };
 
 export default function LoginLayout({ children }: { children: ReactNode }) {

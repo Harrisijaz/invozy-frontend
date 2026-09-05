@@ -32,8 +32,8 @@ export function AdminLayout({ children }: { children: ReactNode }) {
       toast("Your session has expired. Please log in again.", "warning");
       router.replace(ROUTES.login);
     };
-    window.addEventListener("invozy-session-expired", handler);
-    return () => window.removeEventListener("invozy-session-expired", handler);
+    window.addEventListener("invorights-session-expired", handler);
+    return () => window.removeEventListener("invorights-session-expired", handler);
   }, [router, toast]);
 
   if (isPublicAdminRoute) return <>{children}</>;

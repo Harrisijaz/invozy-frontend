@@ -45,14 +45,14 @@ const workflow = [
 ] as const;
 
 const faqs = [
-  { question: "Can I use Invozy from the customer panel?", answer: "Yes. After login, the customer panel includes dashboard, invoices, quotations, expenses, financial reports, subscription, and settings routes." },
+  { question: "Can I use InvoRights from the customer panel?", answer: "Yes. After login, the customer panel includes dashboard, invoices, quotations, expenses, financial reports, subscription, and settings routes." },
   { question: "Do I need an account to get started?", answer: "The landing page sends new users to signup and returning users to login, so saved business data stays tied to a secure workspace." },
   { question: "Is the page responsive on mobile?", answer: "Yes. The hero, navigation, feature cards, pricing preview, and FAQ sections stack vertically on small screens and expand on desktop." },
   { question: "Where do the main buttons go?", answer: "Get Started routes to /signup, Login routes to /login, and Open Workspace routes to /app/dashboard for authenticated customers." },
 ] as const;
 
 const contactMethods = [
-  { icon: Mail, title: "Email support", body: "Send product questions, billing issues, or onboarding requests.", value: "support@invozy.com" },
+  { icon: Mail, title: "Email support", body: "Send product questions, billing issues, or onboarding requests.", value: "support@invorights.com" },
   { icon: MessageSquareText, title: "Customer help", body: "Get guidance for invoices, quotes, expenses, and workspace setup.", value: "Reply within 24 hours" },
   { icon: TimerReset, title: "Response window", body: "Priority issues are reviewed first during business hours.", value: "Mon-Fri support" },
 ] as const;
@@ -86,7 +86,7 @@ export default function Home() {
               Invoice, quote, and manage business finances from one calm workspace.
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-8 text-muted-foreground sm:text-lg">
-              Invozy gives customers a focused side panel for invoices, quotations, expenses, reports, billing, and profile settings. Start quickly, keep records organized, and move from document creation to payment tracking with less friction.
+              InvoRights gives customers a focused side panel for invoices, quotations, expenses, reports, billing, and profile settings. Start quickly, keep records organized, and move from document creation to payment tracking with less friction.
             </p>
             <div className="mt-8 grid gap-3 sm:flex sm:flex-wrap">
               <Button asChild href="/signup" size="lg" className="group w-full sm:w-auto">
@@ -113,8 +113,8 @@ export default function Home() {
             <div className="group overflow-hidden rounded-lg border border-border bg-background shadow-sm transition duration-300 hover:-translate-y-1 hover:border-primary/35 hover:shadow-xl">
               <div className="flex items-center justify-between border-b border-border bg-card px-4 py-3">
                 <div className="flex items-center gap-3">
-                  <Image src="/brand/invozy-logo-new.png" alt="Invozy" width={112} height={36} className="h-8 w-auto object-contain transition duration-300 group-hover:scale-105 dark:hidden" priority />
-                  <Image src="/brand/invozy-logo-dark-v2.png" alt="Invozy" width={112} height={36} className="hidden h-8 w-auto object-contain transition duration-300 group-hover:scale-105 dark:block" priority />
+                  <Image src="/brand/invorights-logo.png" alt="InvoRights" width={148} height={32} className="h-8 w-auto object-contain transition duration-300 group-hover:scale-105 dark:hidden" priority />
+                  <Image src="/brand/invorights-logo-dark.png" alt="InvoRights" width={148} height={32} className="hidden h-8 w-auto object-contain transition duration-300 group-hover:scale-105 dark:block" priority />
                   <span className="hidden text-sm font-medium text-muted-foreground sm:inline">Customer workspace</span>
                 </div>
                 <span className="rounded-md bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">Live panel</span>
@@ -169,7 +169,7 @@ export default function Home() {
             <p className="text-sm font-semibold uppercase text-primary">Paid plan reporting</p>
             <h2 className="mt-3 text-3xl font-semibold tracking-tight text-foreground">Turn paid invoices into clear income graphs.</h2>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-              Once a subscription is active, Invozy unlocks professional income and financial report charts powered by backend finance data. Owners can see paid invoice income, expenses, savings, and payment movement without building spreadsheets.
+              Once a subscription is active, InvoRights unlocks professional income and financial report charts powered by backend finance data. Owners can see paid invoice income, expenses, savings, and payment movement without building spreadsheets.
             </p>
             <div className="mt-6 grid gap-3 sm:grid-cols-3">
               {reportHighlights.map((item) => (
@@ -381,7 +381,7 @@ export default function Home() {
         <div className="mx-auto grid max-w-7xl gap-6 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_auto] lg:items-center lg:px-8">
           <div>
             <p className="text-sm font-semibold uppercase text-primary">Ready to begin</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-foreground">Create your Invozy workspace today.</h2>
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-foreground">Create your InvoRights workspace today.</h2>
             <p className="mt-3 text-sm leading-6 text-muted-foreground">Signup takes new users into account creation. Login brings existing customers back to their panel.</p>
           </div>
           <div className="grid gap-3 sm:flex sm:flex-wrap lg:justify-end">

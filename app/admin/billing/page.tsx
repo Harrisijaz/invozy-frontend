@@ -3,7 +3,7 @@ import { BillingPage } from "@/components/admin/pages";
 
 export const metadata: Metadata = {
   title: "Billing",
-  description: "Track Invozy payments, invoices, revenue, and billing operations.",
+  description: "Track InvoRights payments, invoices, revenue, and billing operations.",
 };
 
 export default function Page() {

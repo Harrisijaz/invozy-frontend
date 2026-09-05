@@ -2,8 +2,8 @@ import { customerApi } from "@/src/lib/customer/api";
 import { clearUserSession, getUserRefreshToken, storeUserSession } from "@/lib/auth";
 import type { AuthMessageResponse, LoginResponse, RefreshResponse, SignupRequest, VerifyEmailRequest } from "@/src/types/customer";
 
-export const USER_ACCESS_TOKEN_KEY = "invozy_user_access_token";
-export const USER_AUTH_COOKIE = "invozy_user_token";
+export const USER_ACCESS_TOKEN_KEY = "invorights_user_access_token";
+export const USER_AUTH_COOKIE = "invorights_user_token";
 
 export const authService = {
   async signup(payload: SignupRequest) {

@@ -3,7 +3,7 @@ import { SupportPage } from "@/components/admin/pages";
 
 export const metadata: Metadata = {
   title: "Support",
-  description: "Manage Invozy customer support requests, tickets, and response workflows.",
+  description: "Manage InvoRights customer support requests, tickets, and response workflows.",
 };
 
 export default function Page() {

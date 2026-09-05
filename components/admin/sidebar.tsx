@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import { useLogout } from "@/hooks/useAdmin";
 import { Button } from "@/components/common/ui";
 import { useToast } from "@/components/common/toast";
-import { InvozyLogo } from "./logo";
+import { InvoRightsLogo } from "./logo";
 import { ThemeSwitcher } from "./theme-switcher";
 
 const sections = [
@@ -36,7 +36,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   };
   return (
     <div className="flex h-full flex-col bg-card">
-      <div className="border-b border-border px-5 py-4"><InvozyLogo /></div>
+      <div className="border-b border-border px-5 py-4"><InvoRightsLogo /></div>
       <nav className="flex-1 space-y-5 overflow-y-auto px-3 py-4">
         {sections.map((section) => (
           <div key={section.label}>

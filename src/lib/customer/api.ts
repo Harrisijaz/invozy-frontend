@@ -53,14 +53,14 @@ customerApi.interceptors.response.use(
           return customerApi(originalRequest);
         } catch {
           clearUserSession();
-          window.dispatchEvent(new CustomEvent("invozy-user-session-expired"));
+          window.dispatchEvent(new CustomEvent("invorights-user-session-expired"));
         }
       }
     }
 
     if (typeof window !== "undefined" && error.response?.status === 401) {
       clearUserSession();
-      window.dispatchEvent(new CustomEvent("invozy-user-session-expired"));
+      window.dispatchEvent(new CustomEvent("invorights-user-session-expired"));
     }
     return Promise.reject(error);
   },

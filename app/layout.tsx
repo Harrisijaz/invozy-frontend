@@ -3,8 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "./providers";
 import "./globals.css";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://invozy.com";
-const title = "Invozy";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://invorights.com";
+const title = "InvoRights";
 const description = "Invoice, quotation, expense, and financial management software for modern businesses.";
 
 const geistSans = Geist({
@@ -19,30 +19,30 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  applicationName: "Invozy",
+  applicationName: "InvoRights",
   title: {
     default: title,
-    template: "%s | Invozy",
+    template: "%s | InvoRights",
   },
   description,
   alternates: {
     canonical: "/",
   },
   icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon.ico",
+    icon: "/brand/invorights-mark.png",
+    shortcut: "/brand/invorights-mark.png",
   },
   openGraph: {
     title,
     description,
     url: "/",
-    siteName: "Invozy",
+    siteName: "InvoRights",
     images: [
       {
-        url: "/brand/invozy-logo-new.png",
-        width: 512,
-        height: 512,
-        alt: "Invozy",
+        url: "/brand/invorights-logo.png",
+        width: 1315,
+        height: 285,
+        alt: "InvoRights",
       },
     ],
     locale: "en_US",
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     card: "summary",
     title,
     description,
-    images: ["/brand/invozy-logo-new.png"],
+    images: ["/brand/invorights-logo.png"],
   },
 };
 

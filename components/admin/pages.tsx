@@ -138,7 +138,7 @@ export function UsersPage() {
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = "invozy-users.csv";
+        link.download = "invorights-users.csv";
         link.click();
         URL.revokeObjectURL(url);
         toast("CSV export completed", "success");

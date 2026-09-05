@@ -3,7 +3,7 @@ import { UsersPage } from "@/components/admin/pages";
 
 export const metadata: Metadata = {
   title: "Users",
-  description: "Manage Invozy users, roles, account status, and customer records.",
+  description: "Manage InvoRights users, roles, account status, and customer records.",
 };
 
 export default function Page() {

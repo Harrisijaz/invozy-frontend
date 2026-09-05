@@ -5,11 +5,11 @@ import type { UserInfo } from "@/src/types/customer";
 
 export const ADMIN_ACCESS_TOKEN_KEY = "adminAccessToken";
 export const ADMIN_USER_KEY = "adminUser";
-export const ADMIN_AUTH_COOKIE = "invozy_admin_token";
-export const USER_ACCESS_TOKEN_KEY = "invozy_user_access_token";
-export const USER_REFRESH_TOKEN_KEY = "invozy_user_refresh_token";
-export const USER_INFO_KEY = "invozy_user_info";
-export const USER_AUTH_COOKIE = "invozy_user_token";
+export const ADMIN_AUTH_COOKIE = "invorights_admin_token";
+export const USER_ACCESS_TOKEN_KEY = "invorights_user_access_token";
+export const USER_REFRESH_TOKEN_KEY = "invorights_user_refresh_token";
+export const USER_INFO_KEY = "invorights_user_info";
+export const USER_AUTH_COOKIE = "invorights_user_token";
 
 const ADMIN_SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
 const USER_SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;

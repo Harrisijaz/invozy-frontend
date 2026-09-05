@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://invozy.com";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://invorights.com";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return ["", "/features", "/pricing", "/about", "/contact", "/login", "/signup"].map((path) => ({

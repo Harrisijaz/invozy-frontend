@@ -4,7 +4,7 @@ import { Bell, Search, UserRound } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { Input } from "@/components/common/ui";
 import { ThemeSwitcher } from "./theme-switcher";
-import { InvozyLogo } from "./logo";
+import { InvoRightsLogo } from "./logo";
 import { MobileAdminMenu } from "./sidebar";
 
 function titleFromPath(pathname: string) {
@@ -25,7 +25,7 @@ export function AdminHeader() {
           <h2 className="text-sm font-semibold text-foreground">{title}</h2>
         </div>
         <div className="flex min-w-0 flex-1 items-center gap-2 lg:hidden">
-          <InvozyLogo compact />
+          <InvoRightsLogo compact />
           <span className="truncate text-sm font-semibold text-muted-foreground">{title}</span>
         </div>
         <label className="relative hidden w-full max-w-md xl:block">

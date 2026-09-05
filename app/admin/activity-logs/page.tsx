@@ -3,7 +3,7 @@ import { ActivityLogsPage } from "@/components/admin/pages";
 
 export const metadata: Metadata = {
   title: "Activity Logs",
-  description: "Audit Invozy admin actions, user events, and security-relevant platform activity.",
+  description: "Audit InvoRights admin actions, user events, and security-relevant platform activity.",
 };
 
 export default function Page() {

@@ -26,7 +26,7 @@ export default function AdminLoginPage() {
   const login = useLogin();
   const toast = useToast();
   const form = useForm<LoginValues>({ resolver: zodResolver(schema), defaultValues: { email: "", password: "" } });
-  const logoSrc = resolvedTheme === "dark" ? "/brand/invozy-logo-dark-v2.png" : "/brand/invozy-logo-new.png";
+  const logoSrc = resolvedTheme === "dark" ? "/brand/invorights-logo-dark.png" : "/brand/invorights-logo.png";
   const onSubmit = (values: LoginValues) => {
     login.mutate(values, {
       onSuccess: () => {
@@ -41,7 +41,7 @@ export default function AdminLoginPage() {
     <main className="grid min-h-screen place-items-center bg-background px-4 py-10">
       <div className="w-full max-w-md">
         <div className="mb-6 text-center">
-          <Image src={logoSrc} alt="Invozy Logo" width={230} height={84} className="mx-auto h-20 w-auto object-contain" priority />
+          <Image src={logoSrc} alt="InvoRights Logo" width={369} height={80} className="mx-auto h-20 w-auto object-contain" priority />
           <p className="mt-3 text-sm font-medium uppercase tracking-[0.16em] text-primary">Admin access only</p>
         </div>
         <Card className="p-6">
