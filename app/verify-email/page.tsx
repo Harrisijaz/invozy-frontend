@@ -3,7 +3,14 @@ import { Suspense } from "react";
 import { AuthCard } from "@/components/auth/auth-card";
 import { VerifyEmailForm } from "@/components/auth/verify-email-form";
 
-export const metadata: Metadata = { title: "Verify Email", description: "Verify your Smart Invoice email address." };
+export const metadata: Metadata = {
+  title: "Verify Email",
+  description: "Verify your Smart Invoice email address.",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default function VerifyEmailPage() {
   return (

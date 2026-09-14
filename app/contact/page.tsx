@@ -3,8 +3,13 @@ import { MarketingShell } from "@/components/marketing/marketing-shell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Field, Input, Textarea } from "@/components/ui/form";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Contact", description: "Contact InvoRights." };
+export const metadata: Metadata = buildMetadata({
+  title: "Contact SmartInvoice Support Team",
+  description: "Contact SmartInvoice for product, billing, onboarding, or account questions. Send a message and get help with your workflow.",
+  path: "/contact",
+});
 
 export default function ContactPage() {
   return <MarketingShell><section className="mx-auto max-w-4xl px-4 py-14 sm:px-6 lg:px-8"><h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Contact InvoRights</h1><p className="mt-4 text-base leading-7 text-muted-foreground">Send a product or billing question to the InvoRights team.</p><Card className="mt-8 grid gap-4"><Field label="Name"><Input /></Field><Field label="Email"><Input type="email" /></Field><Field label="Message"><Textarea /></Field><div className="flex justify-end"><Button>Send Message</Button></div></Card></section></MarketingShell>;

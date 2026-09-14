@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import {
   ArrowRight,
@@ -20,7 +21,15 @@ import {
 } from "lucide-react";
 import { MarketingShell } from "@/components/marketing/marketing-shell";
 import { ContactForm } from "@/components/marketing/contact-form";
+import { JsonLd } from "@/components/seo/json-ld";
 import { Button } from "@/components/ui/button";
+import { absoluteUrl, buildMetadata, siteName } from "@/lib/seo";
+
+export const metadata: Metadata = buildMetadata({
+  title: "SmartInvoice Software for Invoices & Reports",
+  description: "Create invoices, quotes, expenses, and reports in SmartInvoice. Start your organized billing workspace today.",
+  path: "/",
+});
 
 const stats = [
   ["Invoices", "Create, send, and track"],
@@ -73,8 +82,38 @@ const graphBars = [
 ] as const;
 
 export default function Home() {
+  const softwareJson = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: siteName,
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Web",
+    url: absoluteUrl("/"),
+    description: "Invoice, quotation, expense, and financial reporting software for modern businesses.",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+    },
+  };
+
+  const faqJson = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
+  };
+
   return (
     <MarketingShell>
+      <JsonLd value={softwareJson} />
+      <JsonLd value={faqJson} />
       <section className="border-b border-border bg-card">
         <div className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-7xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_0.9fr] lg:items-center lg:px-8">
           <div className="min-w-0">

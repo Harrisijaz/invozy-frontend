@@ -8,6 +8,7 @@ const links = [
   ["Reports", "/#reports-preview"],
   ["Workflow", "/#workflow"],
   ["Pricing", "/#pricing"],
+  ["Blog", "/blog"],
   ["Contact", "/#contact"],
   ["FAQs", "/#faqs"],
 ] as const;
@@ -40,6 +41,7 @@ export function MarketingShell({ children }: { children: React.ReactNode }) {
             <Link href="/login" className="inline-block transition duration-200 hover:-translate-y-0.5 hover:text-foreground">Login</Link>
             <Link href="/signup" className="inline-block transition duration-200 hover:-translate-y-0.5 hover:text-foreground">Signup</Link>
             <Link href="/pricing" className="inline-block transition duration-200 hover:-translate-y-0.5 hover:text-foreground">Pricing</Link>
+            <Link href="/blog" className="inline-block transition duration-200 hover:-translate-y-0.5 hover:text-foreground">Blog</Link>
             <Link href="/#contact" className="inline-block transition duration-200 hover:-translate-y-0.5 hover:text-foreground">Contact</Link>
           </div>
         </div>

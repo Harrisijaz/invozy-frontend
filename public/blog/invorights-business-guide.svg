@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">InvoRights business guide illustration</title>
+  <desc id="desc">A clean business dashboard with invoices, quotes, expenses, and reports.</desc>
+  <rect width="1200" height="675" fill="#f7f8fa"/>
+  <rect x="98" y="86" width="1004" height="503" rx="28" fill="#ffffff" stroke="#dbe3ec"/>
+  <rect x="158" y="150" width="250" height="132" rx="22" fill="#edf7f6"/>
+  <rect x="475" y="150" width="250" height="132" rx="22" fill="#fff1ef"/>
+  <rect x="792" y="150" width="250" height="132" rx="22" fill="#f8fafc"/>
+  <rect x="158" y="340" width="884" height="70" rx="18" fill="#f8fafc"/>
+  <rect x="158" y="442" width="884" height="70" rx="18" fill="#f8fafc"/>
+  <text x="202" y="225" fill="#007a78" font-family="Arial, sans-serif" font-size="30" font-weight="700">Invoices</text>
+  <text x="519" y="225" fill="#f15a4a" font-family="Arial, sans-serif" font-size="30" font-weight="700">Quotes</text>
+  <text x="836" y="225" fill="#111827" font-family="Arial, sans-serif" font-size="30" font-weight="700">Reports</text>
+  <rect x="198" y="366" width="350" height="18" rx="9" fill="#111827"/>
+  <rect x="198" y="468" width="300" height="18" rx="9" fill="#111827"/>
+  <circle cx="956" cy="375" r="18" fill="#0f9f6e"/>
+  <circle cx="956" cy="477" r="18" fill="#007a78"/>
+</svg>

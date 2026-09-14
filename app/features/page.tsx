@@ -2,8 +2,13 @@ import type { Metadata } from "next";
 import { BarChart3, Bot, CreditCard, FileText, ReceiptText, ShieldCheck, Wallet } from "lucide-react";
 import { MarketingShell } from "@/components/marketing/marketing-shell";
 import { Card } from "@/components/ui/card";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Features", description: "Explore InvoRights invoice, quotation, expense, payment, and financial reporting features." };
+export const metadata: Metadata = buildMetadata({
+  title: "Invoice Software Features for Businesses",
+  description: "Explore SmartInvoice features for invoices, quotes, GST, expenses, payments, and reports. Build a clearer billing workflow today.",
+  path: "/features",
+});
 
 const features = [
   ["Invoice Management", FileText, "Create, edit, filter, download PDFs, mark paid, and manage invoice lifecycle rules."],

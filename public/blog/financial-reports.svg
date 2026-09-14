@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">Financial reports illustration</title>
+  <desc id="desc">Income, expense, and savings report charts for a billing dashboard.</desc>
+  <rect width="1200" height="675" fill="#f7f8fa"/>
+  <rect x="86" y="82" width="1028" height="510" rx="28" fill="#ffffff" stroke="#dbe3ec"/>
+  <rect x="150" y="145" width="260" height="110" rx="20" fill="#edf7f6"/>
+  <rect x="470" y="145" width="260" height="110" rx="20" fill="#fff1ef"/>
+  <rect x="790" y="145" width="260" height="110" rx="20" fill="#f8fafc"/>
+  <text x="184" y="204" fill="#007a78" font-family="Arial, sans-serif" font-size="30" font-weight="700">Income</text>
+  <text x="504" y="204" fill="#f15a4a" font-family="Arial, sans-serif" font-size="30" font-weight="700">Expenses</text>
+  <text x="824" y="204" fill="#111827" font-family="Arial, sans-serif" font-size="30" font-weight="700">Savings</text>
+  <path d="M166 455c90-130 175-95 250-140 105-64 155-18 250-82 78-53 142-20 230-88" fill="none" stroke="#007a78" stroke-width="16" stroke-linecap="round"/>
+  <path d="M166 505c92-40 174-22 260-68 106-58 156-18 242-45 88-28 150-10 228-45" fill="none" stroke="#f15a4a" stroke-width="16" stroke-linecap="round"/>
+  <circle cx="900" cy="345" r="80" fill="none" stroke="#dbe3ec" stroke-width="24"/>
+  <path d="M900 265a80 80 0 0 1 72 115" fill="none" stroke="#0f9f6e" stroke-width="24" stroke-linecap="round"/>
+</svg>

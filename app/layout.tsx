@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Analytics } from "@/components/analytics";
 import { Providers } from "./providers";
 import "./globals.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://invorights.com";
-const title = "InvoRights";
+const title = "SmartInvoice";
 const description = "Invoice, quotation, expense, and financial management software for modern businesses.";
 
 const geistSans = Geist({
@@ -19,7 +20,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  applicationName: "InvoRights",
+  applicationName: "SmartInvoice",
   title: {
     default: title,
     template: "%s | InvoRights",
@@ -27,6 +28,13 @@ export const metadata: Metadata = {
   description,
   alternates: {
     canonical: "/",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
   },
   icons: {
     icon: "/brand/invorights-mark.png",
@@ -36,7 +44,7 @@ export const metadata: Metadata = {
     title,
     description,
     url: "/",
-    siteName: "InvoRights",
+    siteName: "SmartInvoice",
     images: [
       {
         url: "/brand/invorights-logo.png",
@@ -64,6 +72,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
+        <Analytics />
         <Providers>{children}</Providers>
       </body>
     </html>

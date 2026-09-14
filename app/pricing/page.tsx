@@ -3,8 +3,13 @@ import { ArrowRight, BarChart3, CheckCircle2, Crown, FileText, LineChart, Sparkl
 import { MarketingShell } from "@/components/marketing/marketing-shell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Pricing", description: "Compare InvoRights Free and Paid plans." };
+export const metadata: Metadata = buildMetadata({
+  title: "SmartInvoice Pricing for Billing Teams",
+  description: "Compare Free and Paid SmartInvoice plans for invoices, AI drafts, payment links, expenses, and reports. Choose your plan today.",
+  path: "/pricing",
+});
 
 const rows = [
   ["Invoices", "5 lifetime", "Unlimited"],

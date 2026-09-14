@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">GST invoice calculation illustration</title>
+  <desc id="desc">Invoice tax rows with GST percentage and final total.</desc>
+  <rect width="1200" height="675" fill="#f7f8fa"/>
+  <rect x="120" y="82" width="960" height="510" rx="28" fill="#ffffff" stroke="#dbe3ec"/>
+  <rect x="180" y="142" width="280" height="28" rx="14" fill="#007a78"/>
+  <text x="180" y="222" fill="#111827" font-family="Arial, sans-serif" font-size="34" font-weight="700">GST Invoice</text>
+  <rect x="180" y="270" width="840" height="58" rx="14" fill="#f8fafc"/>
+  <rect x="180" y="350" width="840" height="58" rx="14" fill="#f8fafc"/>
+  <rect x="180" y="430" width="840" height="58" rx="14" fill="#edf7f6"/>
+  <text x="220" y="307" fill="#64748b" font-family="Arial, sans-serif" font-size="22">Taxable subtotal</text>
+  <text x="844" y="307" fill="#111827" font-family="Arial, sans-serif" font-size="24" font-weight="700">$1,000</text>
+  <text x="220" y="387" fill="#64748b" font-family="Arial, sans-serif" font-size="22">GST 10%</text>
+  <text x="884" y="387" fill="#f15a4a" font-family="Arial, sans-serif" font-size="24" font-weight="700">$100</text>
+  <text x="220" y="467" fill="#111827" font-family="Arial, sans-serif" font-size="24" font-weight="700">Invoice total</text>
+  <text x="838" y="467" fill="#007a78" font-family="Arial, sans-serif" font-size="28" font-weight="700">$1,100</text>
+  <circle cx="898" cy="174" r="58" fill="#fff1ef"/>
+  <text x="864" y="187" fill="#f15a4a" font-family="Arial, sans-serif" font-size="38" font-weight="700">%</text>
+</svg>
