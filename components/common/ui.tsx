@@ -45,15 +45,17 @@ export function PageHeader({ title, description, actions }: { title: string; des
   );
 }
 
-export function StatusBadge({ value }: { value: string }) {
+export function StatusBadge({ value, tone: forcedTone }: { value: string; tone?: "success" | "warning" | "error" | "neutral" }) {
+  const normalized = value.replace(/_/g, " ").toLowerCase();
   const tone =
-    ["Active", "Successful", "Success", "Paid", "Approved", "Resolved", "Refund Completed"].includes(value)
+    forcedTone ??
+    (["active", "successful", "success", "succeeded", "paid", "approved", "resolved", "refund completed"].includes(normalized)
       ? "success"
-      : ["Pending", "Trial", "Past Due", "Warning", "Refund Requested", "Open"].includes(value)
+      : ["pending", "trial", "past due", "warning", "refund requested", "open"].includes(normalized)
         ? "warning"
-        : ["Blocked", "Failed", "Overdue", "Rejected", "High", "Refund Failed"].includes(value)
+        : ["blocked", "failed", "overdue", "rejected", "high", "refund failed", "cancelled", "canceled"].includes(normalized)
           ? "error"
-          : "neutral";
+          : "neutral");
   return (
     <span
       className={cn(

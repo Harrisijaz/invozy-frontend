@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { Activity, BarChart3, Bot, CreditCard, Gauge, LifeBuoy, LogOut, Menu, Shield, UserCog, Users, X } from "lucide-react";
+import { Activity, BarChart3, Bot, CreditCard, Gauge, LifeBuoy, LogOut, Menu, Newspaper, Shield, Tags, UserCog, Users, X } from "lucide-react";
 import { useState } from "react";
 import { ROUTES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -15,7 +15,7 @@ import { ThemeSwitcher } from "./theme-switcher";
 
 const sections = [
   { label: "Overview", items: [{ href: ROUTES.dashboard, label: "Dashboard", icon: Gauge }] },
-  { label: "Management", items: [{ href: ROUTES.users, label: "Users", icon: Users }, { href: ROUTES.subscriptions, label: "Subscriptions", icon: UserCog }, { href: ROUTES.billing, label: "Billing", icon: CreditCard }] },
+  { label: "Management", items: [{ href: ROUTES.users, label: "Users", icon: Users }, { href: ROUTES.subscriptions, label: "Subscriptions", icon: UserCog }, { href: ROUTES.billing, label: "Billing", icon: CreditCard }, { href: ROUTES.blogPosts, label: "Blog Posts", icon: Newspaper }, { href: ROUTES.blogCategories, label: "Blog Taxonomy", icon: Tags }] },
   { label: "Analytics", items: [{ href: ROUTES.analytics, label: "Revenue", icon: BarChart3 }, { href: ROUTES.aiUsage, label: "AI Usage", icon: Bot }] },
   { label: "Support", items: [{ href: ROUTES.support, label: "Support", icon: LifeBuoy }, { href: ROUTES.moderation, label: "Moderation", icon: Shield }] },
   { label: "Security", items: [{ href: ROUTES.activityLogs, label: "Activity Logs", icon: Activity }, { href: ROUTES.security, label: "Security", icon: Shield }] },

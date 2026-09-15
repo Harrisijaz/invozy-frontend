@@ -7,6 +7,8 @@ export const ROUTES = {
   users: "/admin/users",
   subscriptions: "/admin/subscriptions",
   billing: "/admin/billing",
+  blogPosts: "/admin/blog/posts",
+  blogCategories: "/admin/blog/categories",
   analytics: "/admin/analytics",
   support: "/admin/support",
   moderation: "/admin/moderation",

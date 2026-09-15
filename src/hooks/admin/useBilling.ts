@@ -4,6 +4,23 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { billingService } from "@/services/admin/billing.service";
 import type { ChangePlanRequest, RefundPaymentRequest } from "@/types/admin/billing";
 
+export function useBillingOverview() {
+  return useQuery({
+    queryKey: ["admin-billing-overview"],
+    queryFn: billingService.getBillingOverview,
+  });
+}
+
+export function useReconcileBillingUser() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (userId: string) => billingService.reconcileUserSubscription(userId),
+    onSuccess: (overview) => {
+      queryClient.setQueryData(["admin-billing-overview"], overview);
+    },
+  });
+}
+
 export function useSubscriptions(userId: string) {
   return useQuery({
     queryKey: ["user-subscriptions", userId],

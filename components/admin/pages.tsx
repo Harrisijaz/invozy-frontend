@@ -3,20 +3,20 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Activity, Ban, Bot, CircleDollarSign, CreditCard, Download, KeyRound, LifeBuoy, Lock, ShieldAlert, Trash2, UserCheck, Users, Wallet } from "lucide-react";
+import { Activity, Ban, Bot, CircleDollarSign, CreditCard, Download, KeyRound, LifeBuoy, Lock, RefreshCw, ShieldAlert, Trash2, UserCheck, Users, Wallet } from "lucide-react";
 import { Column, DataTable } from "@/components/common/data-table";
 import { Button, Card, ConfirmDialog, EmptyState, ErrorState, Input, PageHeader, StatusBadge } from "@/components/common/ui";
 import { useToast } from "@/components/common/toast";
 import { useAdminDashboard, useAIUsage } from "@/hooks/admin/useAdminDashboard";
 import { useActivityLogs } from "@/hooks/admin/useActivityLogs";
-import { useChangePlan, useFailedPendingPayments, useRefundPayment, useSubscriptions } from "@/hooks/admin/useBilling";
+import { useBillingOverview, useChangePlan, useReconcileBillingUser, useSubscriptions } from "@/hooks/admin/useBilling";
 import { useDismissFlag, useModerationFlags, useTrustUser } from "@/hooks/admin/useModeration";
 import { useAddInternalNote, useTriggerPasswordReset, useUserSupportRecords } from "@/hooks/admin/useSupport";
 import { useUser } from "@/hooks/admin/useUser";
 import { useBlockUser, useDeleteUser, useExportUsers, useUnblockUser, useUsers } from "@/hooks/admin/useUsers";
 import { getApiErrorMessage } from "@/lib/api";
 import { formatCurrency, formatNumber, relativeTime } from "@/lib/utils";
-import type { ActivityLog, AIUsageRow, FailedPendingPayment, ModerationFlag } from "@/types/admin";
+import type { ActivityLog, AIUsageRow, BillingPaymentIssueRow, BillingSubscriptionRow, ModerationFlag } from "@/types/admin";
 import type { AdminUserRow, AdminUserPlanFilter, AdminUserStatusFilter, AdminUserSortBy, SortDirection } from "@/types/admin/user";
 import { RevenueChart, SimpleBarChart, SimpleLineChart, UsagePieChart } from "./charts";
 import { StatCard } from "./stat-card";
@@ -215,35 +215,68 @@ export function UserDetailsPage() {
 }
 
 export function BillingPage() {
-  const payments = useFailedPendingPayments();
-  const refund = useRefundPayment();
+  const overview = useBillingOverview();
+  const reconcile = useReconcileBillingUser();
   const toast = useToast();
-  const [refundForm, setRefundForm] = useState<null | { payment: FailedPendingPayment; amount: string; note: string }>(null);
-  const rows = payments.data ?? [];
+  const [reconcileUserId, setReconcileUserId] = useState("");
+  const subscriptions = overview.data?.subscriptions ?? [];
+  const payments = overview.data?.failedOrPendingPayments ?? [];
+  const activeSubscriptions = subscriptions.filter((row) => row.subscription.status.toUpperCase() === "ACTIVE").length;
+  const attentionSubscriptions = subscriptions.filter((row) => ["PENDING", "PAST_DUE", "FAILED"].includes(row.subscription.status.toUpperCase())).length;
+  const amountAtRisk = payments.reduce((sum, row) => sum + row.payment.amount, 0);
+  const submitReconcile = () => {
+    const userId = reconcileUserId.trim();
+    if (!userId) {
+      toast("Enter a user ID to reconcile.", "warning");
+      return;
+    }
+    reconcile.mutate(userId, {
+      onSuccess: () => {
+        toast("Billing overview synced for this user.", "success");
+        setReconcileUserId("");
+      },
+      onError: (error) => toast(getApiErrorMessage(error, "Unable to reconcile this user's subscription."), "error"),
+    });
+  };
+
   return (
     <div className="space-y-6">
-      <PageHeader title="Billing" description="Failed and pending payments from /admin/billing/payments/failed-pending." />
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"><StatCard label="Failed Payments" value={rows.filter((r) => r.status.toUpperCase().includes("FAILED")).length} icon={ShieldAlert} /><StatCard label="Pending Payments" value={rows.filter((r) => r.status.toUpperCase().includes("PENDING")).length} icon={Activity} /><StatCard label="Amount At Risk" value={rows.reduce((sum, row) => sum + row.amount, 0)} icon={Wallet} currency /></div>
-      <DataTable data={rows} loading={payments.isLoading} error={payments.isError} searchKeys={["transactionId", "user", "status"]} columns={paymentColumns((payment) => setRefundForm({ payment, amount: String(payment.amount), note: "" }))} />
-      <ConfirmDialog open={Boolean(refundForm)} title="Refund Payment" description="Are you sure you want to refund this payment? The frontend will only show the backend-confirmed response." confirmLabel="Refund Payment" onCancel={() => setRefundForm(null)} loading={refund.isPending} onConfirm={() => {
-        if (!refundForm) return;
-        const amount = Number(refundForm.amount);
-        if (!Number.isFinite(amount) || amount <= 0) {
-          toast("Refund amount must be positive.", "warning");
-          return;
-        }
-        if (refundForm.payment.amount && amount > refundForm.payment.amount) {
-          toast("Refund amount cannot exceed the payment amount.", "warning");
-          return;
-        }
-        if (!refundForm.note.trim()) {
-          toast("Refund note is required.", "warning");
-          return;
-        }
-        refund.mutate({ paymentId: refundForm.payment.paymentId, body: { amount, note: refundForm.note } }, { onSuccess: () => { toast("Refund request submitted", "success"); setRefundForm(null); }, onError: (error) => toast(getApiErrorMessage(error), "error") });
-      }}>
-        {refundForm ? <div className="grid gap-3"><Input type="number" min="0.01" step="0.01" value={refundForm.amount} onChange={(event) => setRefundForm({ ...refundForm, amount: event.target.value })} placeholder="Amount" /><Input value={refundForm.note} onChange={(event) => setRefundForm({ ...refundForm, note: event.target.value })} placeholder="Refund note" /></div> : null}
-      </ConfirmDialog>
+      <PageHeader
+        title="Billing"
+        description="Paid subscriptions and payment issues from /admin/billing/overview."
+        actions={<Button variant="secondary" onClick={() => void overview.refetch()} isLoading={overview.isFetching}><RefreshCw className="h-4 w-4" /> Refresh</Button>}
+      />
+      {overview.isError ? <ErrorState description={getApiErrorMessage(overview.error)} onRetry={() => void overview.refetch()} /> : null}
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard label="Paid Subscriptions" value={subscriptions.length} icon={CreditCard} />
+        <StatCard label="Active" value={activeSubscriptions} icon={UserCheck} />
+        <StatCard label="Needs Attention" value={attentionSubscriptions} icon={ShieldAlert} />
+        <StatCard label="Amount At Risk" value={amountAtRisk} icon={Wallet} currency />
+      </div>
+      <Card className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
+        <div>
+          <h2 className="text-base font-semibold text-card-foreground">Sync Missing Subscription</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Use this when a paid user exists in user-service but is missing from admin billing.</p>
+        </div>
+        <div className="grid gap-2 sm:grid-cols-[minmax(16rem,1fr)_auto]">
+          <Input value={reconcileUserId} onChange={(event) => setReconcileUserId(event.target.value)} placeholder="User ID" aria-label="User ID to reconcile" />
+          <Button onClick={submitReconcile} isLoading={reconcile.isPending} disabled={!reconcileUserId.trim()}><RefreshCw className="h-4 w-4" /> Sync</Button>
+        </div>
+      </Card>
+      <section className="space-y-3">
+        <div>
+          <h2 className="text-lg font-semibold text-foreground">Subscriptions</h2>
+          <p className="text-sm text-muted-foreground">Paid subscription records with current billing status.</p>
+        </div>
+        <DataTable data={subscriptions} loading={overview.isLoading} error={false} searchKeys={["userSearch"]} columns={subscriptionColumns} emptyTitle="No paid subscriptions" />
+      </section>
+      <section className="space-y-3">
+        <div>
+          <h2 className="text-lg font-semibold text-foreground">Failed Or Pending Payments</h2>
+          <p className="text-sm text-muted-foreground">Payment attempts requiring retry, expiry, or customer follow-up.</p>
+        </div>
+        <DataTable data={payments} loading={overview.isLoading} error={false} searchKeys={["userSearch"]} columns={billingPaymentColumns} emptyTitle="No failed or pending payments" />
+      </section>
     </div>
   );
 }
@@ -421,15 +454,52 @@ function ActionFields({ type, email, setEmail, reason, setReason, cancelFirst, s
   return <div className="grid gap-3">{type === "block" ? <Input value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Repeated policy violations confirmed by admin review." /> : <><Input value={email} onChange={(event) => setEmail(event.target.value)} placeholder="user@example.com" /><label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={cancelFirst} onChange={(event) => setCancelFirst(event.target.checked)} /> Cancel subscription first</label></>}</div>;
 }
 
-const paymentColumns = (refund: (payment: FailedPendingPayment) => void): Column<FailedPendingPayment>[] => [
-  { key: "transactionId", header: "Transaction ID" },
-  { key: "user", header: "User" },
-  { key: "amount", header: "Amount", render: (row) => formatCurrency(row.amount) },
-  { key: "plan", header: "Plan", render: (row) => <StatusBadge value={row.plan} /> },
-  { key: "paymentMethod", header: "Payment Method" },
-  { key: "status", header: "Status", render: (row) => <StatusBadge value={row.status} /> },
-  { key: "date", header: "Date" },
-  { key: "actions", header: "Actions", render: (row) => <Button variant="secondary" onClick={() => refund(row)}>Refund Payment</Button> },
+function formatDateTime(value: string | null | undefined) {
+  if (!value) return "Not returned";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+}
+
+function billingStatusTone(value: string): "success" | "warning" | "error" | "neutral" {
+  const status = value.toUpperCase();
+  if (["ACTIVE", "SUCCEEDED", "SUCCESS", "PAID"].includes(status)) return "success";
+  if (["PENDING", "PAST_DUE"].includes(status)) return "warning";
+  if (["FAILED", "BLOCKED", "CANCELLED", "CANCELED"].includes(status)) return "error";
+  return "neutral";
+}
+
+function BillingUserCell({ name, email, fallbackId }: { name: string; email: string; fallbackId: string }) {
+  return (
+    <div className="min-w-48">
+      <p className="font-medium text-foreground">{name || fallbackId || "Unknown user"}</p>
+      <p className="text-xs text-muted-foreground">{email || fallbackId || "No user details returned"}</p>
+    </div>
+  );
+}
+
+const subscriptionColumns: Column<BillingSubscriptionRow>[] = [
+  { key: "userSearch", header: "User", render: (row) => <BillingUserCell name={row.userDisplay} email={row.userEmail} fallbackId={row.subscription.userId} /> },
+  { key: "planType", header: "Plan", render: (row) => <StatusBadge value={row.subscription.planType} /> },
+  { key: "status", header: "Status", render: (row) => <StatusBadge value={row.subscription.status} tone={billingStatusTone(row.subscription.status)} /> },
+  { key: "startDate", header: "Start Date", render: (row) => formatDateTime(row.subscription.startDate) },
+  { key: "renewalDate", header: "Renewal Date", render: (row) => formatDateTime(row.subscription.renewalDate) },
+  { key: "gatewayReference", header: "Gateway Ref", render: (row) => row.subscription.gatewayReference || "Not returned" },
+];
+
+const billingPaymentColumns: Column<BillingPaymentIssueRow>[] = [
+  { key: "userSearch", header: "User", render: (row) => <BillingUserCell name={row.userDisplay} email={row.userEmail} fallbackId={row.payment.userId} /> },
+  { key: "amount", header: "Amount", render: (row) => formatCurrency(row.payment.amount) },
+  { key: "status", header: "Status", render: (row) => <StatusBadge value={row.payment.status} tone={billingStatusTone(row.payment.status)} /> },
+  { key: "createdAt", header: "Created", render: (row) => formatDateTime(row.payment.createdAt) },
+  { key: "retryOrExpiryDate", header: "Retry / Expiry", render: (row) => formatDateTime(row.payment.retryOrExpiryDate) },
+  { key: "gatewayReference", header: "Gateway Ref", render: (row) => row.payment.gatewayReference || "Not returned" },
 ];
 
 const moderationColumns = (dismiss: (flagId: string) => void, trust: (userId: string) => void): Column<ModerationFlag>[] => [
